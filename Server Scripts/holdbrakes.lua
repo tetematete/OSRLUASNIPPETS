@@ -77,8 +77,9 @@ function script.update(dt)
                 DefaultWarning = true
             end
         end
-        
+
         ac.debug('message', message)
+        ac.debug('config', config)
         ac.debug('BrakeGain', targetRateOfChange)
         ac.debug('sampleTime', sampleTime)
 
