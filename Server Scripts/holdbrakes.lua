@@ -1,67 +1,95 @@
-SIM                        = ac.getSim()
-CAR                        = ac.getCar(SIM.focusedCar)
-Spend = 0
-Boost = 0
-MAX = 1000
-Gain = 0.001
-LastTime = 0
-lastRead = 0
-Read = 0
-diff =0
-counter = 0
-warn = false
-warningTime = 0
-isWarning = 0
+-- #### TeTeMaTeTe's awesome hold brakes reminder online script ####
+-- Is your server populated by people who don't know how to hold their brakes after a spin?
+-- Worry no more! This online script gives them a gentle reminder to hold their brakes shortly after losing control of their 2 ton death machine.
+-- 
+-- IMPORTANT CONFIG STUFF
+-- Put the following into your AC server welome message:
+-- HoldBrakes:[Points Rate of Change]|[Time Between Samples]|[How long to display the warning for]
+-- 
+-- ## Par Example:
+-- HoldBrakes:50|0.500|5
+-- 
+-- This will:
+-- Set the Target points rate of change to 50. This is an arbitrary number, and is also affected by the sample rate. Change this in proportion with the sample rate.
+-- so target 50 and sample 0.5 would activate at roughly the same time as target 25 and sample 0.25
+-- 
+-- Set the Sample Rate to 0.5 seconds between samples. 
+-- 
+-- Set the warning display time to 5 seconds.
+-- 
+-- To add to your server, place the following into the CSP Extra Options. (This was tested on CSP 2.11, no guarantees this functions on any other versions)
+-- [SCRIPT_...]
+-- SCRIPT = "(Github Raw Link Here.)"
+-- 
+-- if youre still stuck check here: https://github.com/ac-custom-shaders-patch/acc-extension-config/wiki/Misc-%E2%80%93-Server-extra-options#online-scripts
+
+SIM = ac.getSim()
+CAR = ac.getCar(SIM.focusedCar)
+
+lastReadTime = 0
+lastReadPoints = 0
+currentReadPoints = 0 --declare rate of change variables for good measure
+pointsRateOfChange =0
+
+isWarning = false
+timeWarningStarted = 0 --Warning Variables
+
+targetRateOfChange = 50
+sampleTime = 0.5
+displayWarningFor = 5 --Config Defaults. 
+
+DefaultWarning = false
+
 function script.update(dt)
     
-    Points = CAR.driftPoints
     valid = CAR.isDriftValid
     instantPoints = CAR.driftInstantPoints
-    bonus = CAR.isDriftBonusOn
-    time = os.preciseClock()
+    totalElapsedTime = os.preciseClock() 
 
-    ac.debug('points', Points)
+    ac.debug('Instantaneous Points', instantPoints)
+    ac.debug('Elapsed totalElapsedTime', totalElapsedTime)
+    ac.debug('Points Rate Of Change', pointsRateOfChange)
 
-    ac.debug('inst points', instantPoints)
-
-    ac.debug('time', time)
-
-    ac.debug('ROC', diff)
-    ac.debug('warn', warn)
-    ac.debug('warn', warn)
-    ac.debug('a', xPos)
-    ac.debug('b', yPos)
-
-    if diff > 50 then
-        warningTime = time       
+    if pointsRateOfChange > tonumber(targetRateOfChange) then
+        timeWarningStarted = totalElapsedTime  
     end
     
-    if (warningTime + 5) > time then
-        warn = true 
-        ui.drawIcon('ui.Icons.Gamepad', vec2(0,0), vec2(500,500))
-
+    if ((timeWarningStarted + tonumber(displayWarningFor)) > totalElapsedTime) and (totalElapsedTime > tonumber(displayWarningFor))  then
+        isWarning = true --Checks the time the warning started at against how long to display it for. 
     else 
-        warn = false
+        isWarning = false
     end
 
-    if (time - LastTime) > 0.5 then
-        counter = counter + 1
-        LastTime = time
-        lastRead = Read
-        read = instantPoints
+    if (totalElapsedTime - lastReadTime) > tonumber(sampleTime) then --Sampler for the points rate of change
+        lastReadTime = totalElapsedTime
+        lastReadPoints = currentReadPoints
+        currentReadPoints = instantPoints
 
-        diff = instantPoints - lastRead
+        pointsRateOfChange = instantPoints - lastReadPoints
     end
+
+    ac.onOnlineWelcome(function(message, config)  --Reads the script config from the welcome message
+        if string.find(message, 'HoldBrakes:[0-9]+|%d.%d+') ~= nil then
+            targetRateOfChange, sampleTime, displayWarningFor = string.match(message, "HoldBrakes:([0-9]+)|(%d.%d+)|([0-9]+)")
+        else
+            if DefaultWarning == false then
+                ac.sendChatMessage("HoldBrakes Config Missing Or Misconfigured. Falling Back to Defaults")
+                DefaultWarning = true
+            end
+        end
+
+        ac.debug('BrakeGain', targetRateOfChange)
+        ac.debug('sampleTime', sampleTime)
+
+    end)
 end 
 
-function script.drawUI()
-    if warn then
-    xPos, yPos = (ui.windowSize()):unpack()
-    ui.setCursor()
-    --ui.drawText("text", vec2(0.4*xPos,0.4*yPos), rgbm.colors.red)
-    --ui.dwriteDrawTextClipped("HOLD YOUR BRAKES", 0.05*yPos, vec2(0.345*xPos,0.03*yPos+50), vec2(0.65*xPos,0.5*yPos), ui.Alignment.Start, ui.Alignment.Start, false, rgbm.colors.red)
-    ui.dwriteTextAligned("⚠️HOLD YOUR BRAKES⚠️", 0.05*yPos, ui.Alignment.Center, ui.Alignment.Center, vec2(1*xPos,0.4*yPos), false, rgbm.colors.red)
+function script.drawUI() --Draws a shitty UI for it.
 
-    --ui.drawIcon(ui.Icons.Gamepad, vec2(0.4*xPos,0.4*yPos), vec2(0.6*xPos,0.6*yPos))
+    if isWarning then
+        xPos, yPos = (ui.windowSize()):unpack()
+        ui.setCursor()
+        ui.dwriteTextAligned("⚠️HOLD YOUR BRAKES⚠️", 0.05*yPos, ui.Alignment.Center, ui.Alignment.Center, vec2(1*xPos,0.4*yPos), false, rgbm.colors.red)
     end
+
 end
