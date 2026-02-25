@@ -3,12 +3,11 @@
 -- Worry no more! This online script gives them a gentle reminder to hold their brakes shortly after losing control of their 2 ton death machine.
 -- 
 -- IMPORTANT CONFIG STUFF
--- Put the following into your AC server CSP EXTRA OPTIONS: (without the dashes)
---
--- [HOLDBRAKES]
--- TARGET_RATE_OF_CHANGE=50
--- SAMPLE_TIME=0.5
--- DISPLAY_WARNING_FOR=5
+-- Put the following into your AC server welome message:
+-- HoldBrakes:[Points Rate of Change]|[Time Between Samples]|[How long to display the warning for]
+-- 
+-- ## Par Example:
+-- HoldBrakes:50|0.500|5
 -- 
 -- This will:
 -- Set the Target points rate of change to 50. This is an arbitrary number, and is also affected by the sample rate. Change this in proportion with the sample rate.
@@ -30,7 +29,7 @@ CAR = ac.getCar(SIM.focusedCar)
 lastReadTime = 0
 lastReadPoints = 0
 currentReadPoints = 0 --declare rate of change variables for good measure
-pointsRateOfChange = 0
+pointsRateOfChange =0
 
 isWarning = false
 timeWarningStarted = 0 --Warning Variables
@@ -70,27 +69,20 @@ function script.update(dt)
     end
 
     ac.onOnlineWelcome(function(message, config)  --Reads the script config from the welcome message
-        parsedConfig = tostring(config)
-        configCheck = config:mapSection("HOLDBRAKES", {TARGET_RATE_OF_CHANGE=0,SAMPLE_TIME=0,DISPLAY_WARNING_FOR=0})
-        
-        if configCheck["TARGET_RATE_OF_CHANGE"] == 0 then
-            ac.sendChatMessage("Target ROC Config Missing Or Misconfigured. Falling Back to Defaults")
+        if string.find(message, 'HoldBrakes:[0-9]+|%d.%d+') ~= nil then
+            targetRateOfChange, sampleTime, displayWarningFor = string.match(message, "HoldBrakes:([0-9]+)|(%d.%d+)|([0-9]+)")
+        else
+            if DefaultWarning == false then
+                ac.sendChatMessage("HoldBrakes Config Missing Or Misconfigured. Falling Back to Defaults")
+                DefaultWarning = true
+            end
         end
-        if configCheck["SAMPLE_TIME"] == 0 then
-            ac.sendChatMessage("Sample Time Config Missing Or Misconfigured. Falling Back to Defaults")            
-        end
-        if configCheck["DISPLAY_WARNING_FOR"] == 0 then
-            ac.sendChatMessage("Warning Time Config Missing Or Misconfigured. Falling Back to Defaults")            
-        end       
 
-        targetRateOfChange = config:get("HOLDBRAKES", "TARGET_RATE_OF_CHANGE", 50)
-        sampleTime = config:get("HOLDBRAKES", "SAMPLE_TIME", 0.5)
-        displayWarningFor = config:get("HOLDBRAKES", "DISPLAY_WARNING_FOR", 5)
-
-        ac.debug('asconfig', parsedConfig)
+        ac.debug('message', message)
+        ac.debug('config', config)
         ac.debug('BrakeGain', targetRateOfChange)
         ac.debug('sampleTime', sampleTime)
-        ac.debug('whatever', configChecks)
+        ac.debug('')
 
     end)
 end 
@@ -104,6 +96,3 @@ function script.drawUI() --Draws a shitty UI for it.
     end
 
 end
-
-    
-
