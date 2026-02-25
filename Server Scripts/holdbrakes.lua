@@ -5,6 +5,9 @@
 -- IMPORTANT CONFIG STUFF
 -- Put the following into your AC server CSP EXTRA OPTIONS: (without the dashes)
 --
+-- [SCRIPT_...]
+-- SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/holdbrakes.lua"
+--
 -- [HOLDBRAKES]
 -- TARGET_RATE_OF_CHANGE=50
 -- SAMPLE_TIME=0.5
@@ -17,10 +20,6 @@
 -- Set the Sample Rate to 0.5 seconds between samples. 
 -- 
 -- Set the warning display time to 5 seconds.
--- 
--- To add to your server, place the following into the CSP Extra Options. (This was tested on CSP 2.11, no guarantees this functions on any other versions)
--- [SCRIPT_...]
--- SCRIPT = "(Github Raw Link Here.)"
 -- 
 -- if youre still stuck check here: https://github.com/ac-custom-shaders-patch/acc-extension-config/wiki/Misc-%E2%80%93-Server-extra-options#online-scripts
 
@@ -69,7 +68,7 @@ function script.update(dt)
         pointsRateOfChange = instantPoints - lastReadPoints
     end
 
-    ac.onOnlineWelcome(function(message, config)  --Reads the script config from the welcome message
+    ac.onOnlineWelcome(function(message, config)  --Reads the script config from the extra options config
         parsedConfig = tostring(config)
         configCheck = config:mapSection("HOLDBRAKES", {TARGET_RATE_OF_CHANGE=0,SAMPLE_TIME=0,DISPLAY_WARNING_FOR=0})
         
