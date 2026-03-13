@@ -74,19 +74,6 @@ ac.onOnlineWelcome(function(message, config) --Reads the script config from the 
     slowCarFlagPersist = (config:get("BETTERFLAGS", "SLOW_CAR_FLAG_PERSIST", 3))*1000
 end)
 
-slowCarEvent = ac.OnlineEvent({
-  -- message structure layout:
-  key = ac.StructItem.key('slowCarEvent'),
-  slowCarProgress = ac.StructItem.float(),
-}, function (sender, data)
-
-  ac.debug('Got message: from'  , sender and sender.index or -1)
-  ac.debug('Got message: text', data.slowCarProgress)
-      if ((data.slowCarProgress+0.01) > trackProgress-math.floor((trackProgress + slowCarDistance)) and (data.slowCarProgress < ((trackProgress + slowCarDistance)-math.floor((trackProgress + slowCarDistance))))) then
-        lastSlowCarRecieve = totalElapsedTime
-    end 
-end,ac.SharedNamespace.ServerScript)
-
 
 function makeFlags()
 
@@ -186,8 +173,7 @@ function script.update(dt)
         --ac.debug('mirrorscale', mirrorScale)    
         --ac.debug('windowHeight', image1posy) 
         ac.debug("batt", currentFlags)
-        ac.debug("dm", SIM.directMessagingAvailable)
-        ac.debug("udp", SIM.directUDPMessagingAvailable)
+
 
     flagHandler()
 end
@@ -222,8 +208,7 @@ function shouldSlowCar()
     if (CAR.speedKmh < 30) and not(CAR.isInPitlane) and (CAR.wheelsOutside < 3) and (SIM.timeToSessionStart < -10000) then
         if lastSlowCarBroadcastAttempt + slowCarCooldown < totalElapsedTime then
             lastSlowCarBroadcastAttempt = totalElapsedTime
-            --ac.broadcastSharedEvent("broadcastSlowCar", trackProgress)
-            slowCarEvent({slowCarProgress=trackProgress})
+            ac.broadcastSharedEvent("broadcastSlowCar", trackProgress)
         end
 
         return true
@@ -261,14 +246,11 @@ end
 --Recieving
 
 --0.9 0.1 
-
-
-
---[[ac.onSharedEvent("broadcastSlowCar", function(slowCarProgress)
+ac.onSharedEvent("broadcastSlowCar", function(slowCarProgress)
     if ((slowCarProgress+0.01) > trackProgress-math.floor((trackProgress + slowCarDistance)) and (slowCarProgress < ((trackProgress + slowCarDistance)-math.floor((trackProgress + slowCarDistance))))) then
         lastSlowCarRecieve = totalElapsedTime
     end 
-end)]]
+end)
 
 --sending
 ac.onChatMessage(function()
