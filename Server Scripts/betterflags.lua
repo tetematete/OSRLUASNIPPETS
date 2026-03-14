@@ -71,7 +71,7 @@ ac.onOnlineWelcome(function(message, config) --Reads the script config from the 
     noOvertake2_S,noOvertake2_E = config:get("BETTERFLAGS", "NO_OVERTAKE_ZONE_2", 0), config:get("BETTERFLAGS", "NO_OVERTAKE_ZONE_2", 0,2)
     noOvertake3_S,noOvertake3_E = config:get("BETTERFLAGS", "NO_OVERTAKE_ZONE_3", 0), config:get("BETTERFLAGS", "NO_OVERTAKE_ZONE_3", 0,2)
     meatballThreshold = config:get("BETTERFLAGS", "MEATBALL_THRESHOLD", 0.10)
-    slowCarFlagPersist = (config:get("BETTERFLAGS", "SLOW_CAR_FLAG_PERSIST", 3))*1000
+    slowCarFlagPersist = (config:get("BETTERFLAGS", "SLOW_CAR_FLAG_PERSIST", 1))*1000
 end)
 
 slowCarEvent = ac.OnlineEvent({
