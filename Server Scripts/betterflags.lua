@@ -46,7 +46,7 @@ displayWarningFor = 5 --Config Defaults.
 slowCarCooldown = 1000
 lastSlowCarBroadcastAttempt = 0
 lastSlowCarRecieve = 0
-slowCarDistance = 0.2
+slowCarDistance = 0.1
 
 --ui init
 settingsOverride = false
@@ -72,6 +72,7 @@ ac.onOnlineWelcome(function(message, config) --Reads the script config from the 
     noOvertake3_S,noOvertake3_E = config:get("BETTERFLAGS", "NO_OVERTAKE_ZONE_3", 0), config:get("BETTERFLAGS", "NO_OVERTAKE_ZONE_3", 0,2)
     meatballThreshold = config:get("BETTERFLAGS", "MEATBALL_THRESHOLD", 0.10)
     slowCarFlagPersist = (config:get("BETTERFLAGS", "SLOW_CAR_FLAG_PERSIST", 1))*1000
+    slowCarDistance = (config:get("BETTERFLAGS", "SLOW_CAR_WARN_DISTANCE", 0.1))
 end)
 
 slowCarEvent = ac.OnlineEvent({
