@@ -46,4 +46,5 @@ SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads
 [HOLDBRAKES]
 TARGET_RATE_OF_CHANGE=50 ;Sensitivity of the script, lower numbers display warning earlier. rate of change graph avaliable in lua debug app to help with picking the right value
 DISPLAY_WARNING_FOR=5 ;Time in seconds to display warning for
+FORCE_VICTIM_BRAKES=0 ;0 off, 1 on | automatically holds brakes for warning duration. Ensure the Target rate of change is tuned well. Or don't. lmao.
 ```
