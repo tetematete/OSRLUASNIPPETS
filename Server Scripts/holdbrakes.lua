@@ -9,36 +9,23 @@
 -- SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/holdbrakes.lua"
 --
 -- [HOLDBRAKES]
--- TARGET_RATE_OF_CHANGE=50
--- SAMPLE_TIME=0.5
--- DISPLAY_WARNING_FOR=5
+-- TARGET_RATE_OF_CHANGE=50 ;Sensitivity of the script, lower numbers display warning earlier. rate of change graph avaliable in lua debug app to help with picking the right value
+-- DISPLAY_WARNING_FOR=5 ;Time in seconds to display warning for
 -- 
--- This will:
--- Set the Target points rate of change to 50. This is an arbitrary number, and is also affected by the sample rate. Change this in proportion with the sample rate.
--- so target 50 and sample 0.5 would activate at roughly the same time as target 25 and sample 0.25
--- 
--- Set the Sample Rate to 0.5 seconds between samples. 
--- 
--- Set the warning display time to 5 seconds.
--- 
--- if youre still stuck check here: https://github.com/ac-custom-shaders-patch/acc-extension-config/wiki/Misc-%E2%80%93-Server-extra-options#online-scripts
+-- if you're still stuck check here: https://github.com/ac-custom-shaders-patch/acc-extension-config/wiki/Misc-%E2%80%93-Server-extra-options#online-scripts
 
 SIM = ac.getSim()
 CAR = ac.getCar(SIM.focusedCar)
 
-lastReadTime = 0
 lastReadPoints = 0
-currentReadPoints = 0 --declare rate of change variables for good measure
 pointsRateOfChange = 0
 
 isWarning = false
-timeWarningStarted = 0 --Warning Variables
+warningTimer = 0 --Warning Variables
 
 targetRateOfChange = 50
 sampleTime = 0.5
 displayWarningFor = 5 --Config Defaults. 
-
-DefaultWarning = false
 
 xPos, yPos = ac.getSim().windowWidth,ac.getSim().windowHeight
 
@@ -49,9 +36,9 @@ ac.onOnlineWelcome(function(message, config)     --Reads the script config from 
     if configCheck["TARGET_RATE_OF_CHANGE"] == 0 then
         ac.sendChatMessage("Target ROC Config Missing Or Misconfigured. Falling Back to Defaults")
     end
-    if configCheck["SAMPLE_TIME"] == 0 then
-        ac.sendChatMessage("Sample Time Config Missing Or Misconfigured. Falling Back to Defaults")
-    end
+    --if configCheck["SAMPLE_TIME"] == 0 then
+    --    ac.sendChatMessage("Sample Time Config Missing Or Misconfigured. Falling Back to Defaults")
+    --end
     if configCheck["DISPLAY_WARNING_FOR"] == 0 then
         ac.sendChatMessage("Warning Time Config Missing Or Misconfigured. Falling Back to Defaults")
     end
@@ -62,37 +49,31 @@ ac.onOnlineWelcome(function(message, config)     --Reads the script config from 
 end)
 
 function script.update(dt)
-    valid = CAR.isDriftValid
     instantPoints = CAR.driftInstantPoints
-    totalElapsedTime = os.preciseClock()
 
-    ac.debug('Instantaneous Points', instantPoints)
-    ac.debug('Elapsed totalElapsedTime', totalElapsedTime)
-    ac.debug('Points Rate Of Change', pointsRateOfChange)
+    ac.debug("!version", "0.8")
+
+    --ac.debug('Instantaneous Points', instantPoints)
+    ac.debug('Points Rate Of Change', pointsRateOfChange, 0,200,3)
 
     if pointsRateOfChange > tonumber(targetRateOfChange) then
-        timeWarningStarted = totalElapsedTime
+        warningTimer = displayWarningFor
     end
 
-    if ((timeWarningStarted + tonumber(displayWarningFor)) > totalElapsedTime) and (totalElapsedTime > tonumber(displayWarningFor)) then
-        isWarning = true --Checks the time the warning started at against how long to display it for.
+    if warningTimer > 0 then --Checks the time the warning started at against how long to display it for.
+        warningTimer = warningTimer - dt
+        isWarning = true 
     else
         isWarning = false
     end
 
-    if (totalElapsedTime - lastReadTime) > tonumber(sampleTime) then --Sampler for the points rate of change
-        lastReadTime = totalElapsedTime
-        lastReadPoints = currentReadPoints
-        currentReadPoints = instantPoints
+        pointsRateOfChange = (instantPoints - lastReadPoints)/dt
+        lastReadPoints = instantPoints
 
-        pointsRateOfChange = instantPoints - lastReadPoints
-    end
-
-    ac.debug("_version", "0.7")
-    ac.debug('asconfig', parsedConfig)
-    ac.debug('BrakeGain', targetRateOfChange)
-    ac.debug('sampleTime', sampleTime)
-    ac.debug('whatever', configChecks)
+    --ac.debug('asconfig', parsedConfig)
+    --ac.debug('BrakeGain', targetRateOfChange)
+    --ac.debug('sampleTime', sampleTime)
+    --ac.debug('whatever', configChecks)
 end
 
 ac.onResolutionChange(function()
@@ -105,6 +86,3 @@ function script.drawUI() --Draws a shitty UI for it.
             vec2(1 * xPos, 0.4 * yPos), false, rgbm.colors.red)
     end
 end
-
-    
-
