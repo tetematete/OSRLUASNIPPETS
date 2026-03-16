@@ -1,23 +1,3 @@
--- #### TeTeMaTeTe's awesome hold brakes reminder online script ####
--- Is your server populated by people who don't know how to hold their brakes after a spin?
--- Worry no more! This online script gives them a gentle reminder to hold their brakes shortly after losing control of their 2 ton death machine.
--- 
--- IMPORTANT CONFIG STUFF
--- Put the following into your AC server CSP EXTRA OPTIONS: (without the dashes)
---
--- [HOLDBRAKES]
--- TARGET_RATE_OF_CHANGE=50
--- SAMPLE_TIME=0.5
--- DISPLAY_WARNING_FOR=5
--- 
--- This will:
--- Set the Target points rate of change to 50. This is an arbitrary number, and is also affected by the sample rate. Change this in proportion with the sample rate.
--- so target 50 and sample 0.5 would activate at roughly the same time as target 25 and sample 0.25
--- 
--- Set the Sample Rate to 0.5 seconds between samples. 
--- 
--- Set the warning display time to 5 seconds.
--- 
 -- To add to your server, place the following into the CSP Extra Options. (This was tested on CSP 2.11, no guarantees this functions on any other versions)
 -- [SCRIPT_...]
 -- SCRIPT = "(Github Raw Link Here.)"
@@ -60,6 +40,8 @@ betterFlagSettings = ac.storage({
 
 tempSettings = betterFlagSettings
 
+ac.blockSystemMessages("$CSP0:")
+
 end
 ac.onOnlineWelcome(function(message, config) --Reads the script config from the extra options
     parsedConfig = tostring(config)
@@ -87,7 +69,7 @@ slowCarEvent = ac.OnlineEvent({
         lastSlowCarRecieve = totalElapsedTime
     end 
 end,ac.SharedNamespace.ServerScript)
-
+    ac.debug("!version", "betterflags v0.51")
 
 function makeFlags()
 
@@ -186,7 +168,7 @@ function script.update(dt)
         --ac.debug('uiScale', uiScale)
         --ac.debug('mirrorscale', mirrorScale)    
         --ac.debug('windowHeight', image1posy) 
-        ac.debug("_version", "0.5")
+
         ac.debug("batt", currentFlags)
         ac.debug("dm", SIM.directMessagingAvailable)
         ac.debug("udp", SIM.directUDPMessagingAvailable)
