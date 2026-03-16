@@ -88,6 +88,7 @@ function script.update(dt)
         sampleTime = config:get("HOLDBRAKES", "SAMPLE_TIME", 0.5)
         displayWarningFor = config:get("HOLDBRAKES", "DISPLAY_WARNING_FOR", 5)
 
+        ac.debug("_version", "0.6")
         ac.debug('asconfig', parsedConfig)
         ac.debug('BrakeGain', targetRateOfChange)
         ac.debug('sampleTime', sampleTime)
