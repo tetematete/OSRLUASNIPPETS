@@ -40,6 +40,8 @@ displayWarningFor = 5 --Config Defaults.
 
 DefaultWarning = false
 
+xPos, yPos = ac.getSim().windowWidth,ac.getSim().windowHeight
+
 function script.update(dt)
     
     valid = CAR.isDriftValid
@@ -94,10 +96,14 @@ function script.update(dt)
     end)
 end 
 
+ac.onResolutionChange(function()
+    xPos, yPos = ac.getSim().windowWidth,ac.getSim().windowHeight
+end)
+
 function script.drawUI() --Draws a shitty UI for it.
 
     if isWarning then
-        xPos, yPos = (ui.windowSize()):unpack()
+
         ui.setCursor()
         ui.dwriteTextAligned("⚠️HOLD YOUR BRAKES⚠️", 0.05*yPos, ui.Alignment.Center, ui.Alignment.Center, vec2(1*xPos,0.4*yPos), false, rgbm.colors.red)
     end
