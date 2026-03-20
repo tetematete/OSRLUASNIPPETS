@@ -6,7 +6,7 @@ local timeTable
 local displayTable= {}
 local enabled = false
 local colorOfTag = rgbm.colors.light
-ac.debug("!version", "acsrtags v0.7")
+ac.debug("!version", "acsrtags v0.8")
 
 ac.onOnlineWelcome(function(message, config) --Reads the script config from the extra options config
     parsedConfig = tostring(config)
