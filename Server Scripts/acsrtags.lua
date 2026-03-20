@@ -20,28 +20,10 @@ ac.onOnlineWelcome(function(message, config) --Reads the script config from the 
             timeTable = JSON.parse(response.body)
 
 
-            for carID, entryInfo in ipairs(timeTable["EntryList"]) do
-
-                --for key, value in pairs(ratingsTable["DriverACSRRatings"]) do
-                --    if key == entryInfo["GUID"] then
-                 --   displayTable[entryInfo["Driver"]] = {acsrID = value["driver_id"]}
-                --    end
-                --end
-
-            end
-
-
             enabled = true
 
         end)
     end)
-
-
-
-    --for index, value in ipairs(ratingsTable["EntryList"]) do
-        --value
-    --end
-
 
 end)
 
