@@ -1,12 +1,12 @@
 local serverURL
 local parsedConfig
 local ratingsTable
-local timetableURL = ac.getServerIP() .. ":" ..ac.getServerPortHTTP() .. "/timetable.json"
+local timetableURL = "http://".. ac.getServerIP() .. ":" ..ac.getServerPortHTTP() .. "/timetable.json"
 local timeTable
 local displayTable= {}
 local enabled = false
 local colorOfTag = rgbm.colors.light
-ac.debug("!version", "acsrtags v0.6")
+ac.debug("!version", "acsrtags v0.7")
 
 ac.onOnlineWelcome(function(message, config) --Reads the script config from the extra options config
     parsedConfig = tostring(config)
