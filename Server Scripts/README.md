@@ -48,3 +48,17 @@ TARGET_RATE_OF_CHANGE=100 ;Sensitivity of the script, lower numbers display warn
 DISPLAY_WARNING_FOR=5 ;Time in seconds to display warning for
 FORCE_VICTIM_BRAKES=0 ;0 off, 1 on | automatically holds brakes for warning duration. Ensure the Target rate of change is tuned well. Or don't. lmao.
 ```
+
+## ACSR Tags
+Changes the driver tags ingame to display Driver Safety and Skill Rating from ACSR. Requires ACSM 2.4.13+
+
+Displays events remaining for provisional drivers. Uses championship endpoint, so will only work for drivers registered in ACSR-enabled championship. Races should also be started from said championship, or using the start practice session button.
+
+It can be disabled from the chat app.
+```
+[SCRIPT_...]
+SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/acsrtags.lua"
+
+[ACSRTAGS]
+CHAMPIONSHIP_URL="http://127.0.0.1:8772/championship/000000000000-0000-0000-0000-000000000000" ;Replace this with the link of the championship the race is taking place in.
+```
