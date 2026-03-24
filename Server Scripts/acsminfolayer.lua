@@ -44,25 +44,23 @@ function script.update(dt)
   liveTimingsTimer = liveTimingsTimer - dt
 
   if enabled then
-  if timeTable ~= nil then
-    if not timeTableModeEnabled then
-    for i, value in ipairs(timeTable["ConnectedDrivers"]) do
-      ac.setRaceScore(ac.getCarByDriverName(value["DriverName"]), value["Position"])
+    if timeTable ~= nil then
+      if not timeTableModeEnabled then
+        for i, value in ipairs(timeTable["ConnectedDrivers"]) do
+          ac.log(value["DriverName"], value["Position"])
+          ac.setRaceScore(ac.getCarByDriverName(value["DriverName"]), value["Position"])
+        end
+      else
+        for index, value in ac.iterateCars.serverSlots() do
+
+        end
+      end
     end
   else
-    for index, value in ac.iterateCars.serverSlots() do
-      
+    for index, value in ac.iterateCars() do
+      ac.setRaceScore(value.index, math.nan)
     end
   end
-
-
-  end
-
-else
-for index, value in ac.iterateCars() do
-  ac.setRaceScore(value.index, math.nan)
-end
-end
 end
 
 ui.registerOnlineExtra(ui.Icons.Shield, "ACSM Info", function ()return true end, function ()
