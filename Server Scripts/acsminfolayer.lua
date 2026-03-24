@@ -3,7 +3,7 @@ local liveTimingsTimer = 2
 local timetableURL = "http://".. ac.getServerIP() .. ":" ..ac.getServerPortHTTP() .. "/timetable.json"
 local enabled = true
 local serverNumber
-ac.debug("!version", "ACSMINFO v0.10")
+ac.debug("!version", "ACSMINFO v0.11")
 
 ac.onOnlineWelcome(function(message, config) --Reads the script config from the extra options config
   serverURL = config:get("ACSMINFO", "SERVER_URL", "")
@@ -48,7 +48,8 @@ function script.update(dt)
       if timeTableModeEnabled == 0 then
         for i, value in ipairs(timeTable["ConnectedDrivers"]) do
           ac.log(value["DriverName"] .. " ".. ac.getCar(ac.getCarByDriverName(value["DriverName"])):driverName(), value["NumLaps"])
-          ac.setRaceScore(ac.getCarByDriverName(value["DriverName"]), value["NumLaps"])
+          local c = ac.getCarByDriverName(value["DriverName"])
+          ac.setRaceScore(c, value["NumLaps"]+1 + ac.getCar(c).splinePosition)
         end
       else
         for index, value in ac.iterateCars.serverSlots() do
