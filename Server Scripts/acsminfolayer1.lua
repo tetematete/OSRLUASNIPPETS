@@ -50,11 +50,7 @@ function script.update(dt)
           ac.log(value["DriverName"] .. " ".. ac.getCar(ac.getCarByDriverName(value["DriverName"])):driverName(), value["NumLaps"])
           local c = ac.getCarByDriverName(value["DriverName"])
           ac.setRaceScore(c, value["NumLaps"]+1 + ac.getCar(c).splinePosition)
-          if c == 0 and value["BlueFlag"] == true then
-            physics.overrideRacingFlag(ac.FlagType.FasterCar)
-          else
-            physics.overrideRacingFlag(ac.FlagType.Unsportsmanlike)
-          end
+
         end
       else
         for index, value in ac.iterateCars.serverSlots() do
