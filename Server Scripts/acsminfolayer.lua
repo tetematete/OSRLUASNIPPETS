@@ -3,7 +3,7 @@ local liveTimingsTimer = 2
 local timetableURL = "http://".. ac.getServerIP() .. ":" ..ac.getServerPortHTTP() .. "/timetable.json"
 local enabled = true
 local serverNumber
-ac.debug("!version", "ACSMINFO v0.6")
+ac.debug("!version", "ACSMINFO v0.7")
 
 ac.onOnlineWelcome(function(message, config) --Reads the script config from the extra options config
   serverURL = config:get("ACSMINFO", "SERVER_URL", "")
@@ -12,7 +12,7 @@ ac.onOnlineWelcome(function(message, config) --Reads the script config from the 
 end)
 
 function getLiveTimings()
-  if not timeTableModeEnabled then
+  if timeTableModeEnabled == 0 then
     web.get(serverURL .. "/api/live-timings/basic.json?server=" .. serverNumber, function(err, response)
       if JSON.parse(response.body) ~= nil then
         timeTable = JSON.parse(response.body)
