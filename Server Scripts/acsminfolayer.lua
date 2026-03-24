@@ -47,7 +47,7 @@ function script.update(dt)
     if timeTable ~= nil then
       if not timeTableModeEnabled then
         for i, value in ipairs(timeTable["ConnectedDrivers"]) do
-          ac.log(value["DriverName"], value["Position"])
+          ac.log(value["DriverName"] .. " ".. ac.getCarByDriverName(value["DriverName"]):driverName(), value["Position"])
           ac.setRaceScore(ac.getCarByDriverName(value["DriverName"]), value["Position"])
         end
       else
