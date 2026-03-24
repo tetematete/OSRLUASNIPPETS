@@ -3,7 +3,7 @@ local liveTimingsTimer = 2
 local timetableURL = "http://".. ac.getServerIP() .. ":" ..ac.getServerPortHTTP() .. "/timetable.json"
 local enabled = true
 local serverNumber
-ac.debug("!version", "ACSMINFO v0.12")
+ac.debug("!version", "ACSMINFO v0.13")
 
 ac.onOnlineWelcome(function(message, config) --Reads the script config from the extra options config
   serverURL = config:get("ACSMINFO", "SERVER_URL", "")
@@ -50,7 +50,7 @@ function script.update(dt)
           ac.log(value["DriverName"] .. " ".. ac.getCar(ac.getCarByDriverName(value["DriverName"])):driverName(), value["NumLaps"])
           local c = ac.getCarByDriverName(value["DriverName"])
           ac.setRaceScore(c, value["NumLaps"]+1 + ac.getCar(c).splinePosition)
-          if c == 0 and value["BlueFlag"] == "true" then
+          if c == 0 and value["BlueFlag"] == true then
             physics.overrideRacingFlag(ac.FlagType.FasterCar)
           else
             physics.overrideRacingFlag(ac.FlagType.Unsportsmanlike)
