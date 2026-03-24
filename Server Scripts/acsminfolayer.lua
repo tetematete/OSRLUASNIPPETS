@@ -1,21 +1,34 @@
 local timeTable
 local liveTimingsTimer = 2
+local timetableURL = "http://".. ac.getServerIP() .. ":" ..ac.getServerPortHTTP() .. "/timetable.json"
 local enabled = true
 local serverNumber
-ac.debug("!version", "ACSMINFO v0.5")
+ac.debug("!version", "ACSMINFO v0.6")
 
 ac.onOnlineWelcome(function(message, config) --Reads the script config from the extra options config
   serverURL = config:get("ACSMINFO", "SERVER_URL", "")
   serverNumber = config:get("ACSMINFO", "SERVER_NUMBER", 0)
+  timeTableModeEnabled =  config:get("ACSMINFO", "TIMETABLE_MODE", 0)
 end)
 
 function getLiveTimings()
-  web.get(serverURL .. "/api/live-timings/basic.json?server=" .. serverNumber, function(err, response)
-    if JSON.parse(response.body) ~= nil then
-      timeTable = JSON.parse(response.body)
-    end
-    liveTimingsTimer = 1
-  end)
+  if not timeTableModeEnabled then
+    web.get(serverURL .. "/api/live-timings/basic.json?server=" .. serverNumber, function(err, response)
+      if JSON.parse(response.body) ~= nil then
+        timeTable = JSON.parse(response.body)
+      end
+      liveTimingsTimer = 1
+    end)
+  else
+    web.get(timetableURL, function(err, response)
+      if JSON.parse(response.body) ~= nil then
+        timeTable = JSON.parse(response.body)
+      end
+      liveTimingsTimer = 1
+    end)
+  end
+
+
 end
 
 function script.update(dt)
@@ -27,8 +40,16 @@ function script.update(dt)
   liveTimingsTimer = liveTimingsTimer - dt
 
   if timeTable ~= nil then
+    if not timeTableModeEnabled then
     for i, value in ipairs(timeTable["ConnectedDrivers"]) do
       ac.setRaceScore(ac.getCarByDriverName(value["DriverName"]), value["Position"])
     end
+  else
+    for index, value in ac.iterateCars.serverSlots() do
+      
+    end
+  end
+
+
   end
 end
