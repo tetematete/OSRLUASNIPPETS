@@ -39,6 +39,7 @@ function script.update(dt)
   end
   liveTimingsTimer = liveTimingsTimer - dt
 
+  if enabled then
   if timeTable ~= nil then
     if not timeTableModeEnabled then
     for i, value in ipairs(timeTable["ConnectedDrivers"]) do
@@ -52,4 +53,18 @@ function script.update(dt)
 
 
   end
+
+else
+for index, value in ac.iterateCars() do
+  ac.setRaceScore(value.index, math.nan)
 end
+end
+end
+
+ui.registerOnlineExtra(ui.Icons.Shield, "ACSM Info", function ()return true end, function ()
+  if ui.checkbox("Enable ASCMINFO", enabled) then
+    enabled = not enabled
+  end
+end, function ()
+  
+end, ui.OnlineExtraFlags.None )
