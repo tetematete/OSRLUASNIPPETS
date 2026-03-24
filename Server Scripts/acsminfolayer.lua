@@ -33,6 +33,10 @@ end
 
 function script.update(dt)
   ac.debug("server", timeTable)
+  for index, value in ac.iterateCars.serverSlots() do
+      ac.debug(value:driverName(), value.racePosition)
+  end
+
   if liveTimingsTimer < 0 then
     getLiveTimings()
     liveTimingsTimer = 1
