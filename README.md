@@ -9,3 +9,4 @@ If you want to help support what I do, consider tipping on my [Ko-fi!](https://k
 
 There is no guarantee of updates or support, these are pretty much all made on a whim.
 
+No Generative AI of any kind was used in any part of the process of making these. If you intend to modify these scripts, I'd prefer you keep the same principle <3
