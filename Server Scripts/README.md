@@ -62,3 +62,12 @@ SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads
 [ACSRTAGS]
 CHAMPIONSHIP_URL="http://127.0.0.1:8772/championship/000000000000-0000-0000-0000-000000000000" ;Replace this with the link of the championship the race is taking place in.
 ```
+
+## Evil AGA (Advanced Gamepad Assist)
+Acts as an override for gamepad assist scripts. To be used in places where strong assists could have an affect on competitive integrity.
+
+This one pretty much just came to me in a dream. relatively untested, allegedly breaks cmrt leaderboard somehow but im really not sure how that could be the case. 
+```
+[SCRIPT_...]
+SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/evilAGA.lua"
+```
