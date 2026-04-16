@@ -2,16 +2,11 @@ sim = ac.getSim()
 car = ac.getCar(0)
 texFilePath = (ac.getFolder(ac.FolderID.Root) .. "\\content\\texture\\")
 
-lastReadPoints = 0
-pointsRateOfChange = 0
-
-isWarning = false
-warningTimer = 0 --Warning Variables
-lastcombo = 0
-
+penaltyType = 0 -- -2 for gearbox locked until start, -1 for no Penalty, 0 for teleport to pits, above 0 will be laps to serve drive through.
 
 lightCount = 6
-started = false
+adminFlag = ui.OnlineExtraFlags.None
+started = true
 startTime = 17000
 delayTime = 3000
 lightsOutMax = 5000
@@ -20,11 +15,8 @@ seqStartTime = 12000
 seqDuration = 17000
 
 light = ui.ExtraCanvas(vec2(64,64))
-light.setName(light, "light")
 --ac.debug("a", ui.imageSize(light))
 if ui.imageSize(texFilePath .. "off.png") < vec2(32,32) then
-    
-    
     light:update(function ()
         ui.drawCircleFilled(vec2(32,32),30,rgbm.colors.white,24)
     end)
@@ -47,21 +39,29 @@ end
 
 ac.onOnlineWelcome(function(message, config) --Reads the script config from the extra options config
     parsedConfig = tostring(config)
-    configCheck = config:mapSection("HOLDBRAKES", { TARGET_RATE_OF_CHANGE = 0, SAMPLE_TIME = 0, DISPLAY_WARNING_FOR = 0 })
+    --ac.debug("config", parsedConfig)
+    configCheck = config:mapSection("STARTLIGHTS", { TARGET_RATE_OF_CHANGE = 0, SAMPLE_TIME = 0, DISPLAY_WARNING_FOR = 0 })
+    lightsOutMin, lightsOutMax = config:get("STARTLIGHTS", "RANDOM_DELAY_RANGE", 3,1)*1000,config:get("STARTLIGHTS", "RANDOM_DELAY_RANGE", 5,2)*1000
+    penaltyType = config:get("STARTLIGHTS", "PENALTY_TYPE", -1)
+    seqDuration,seqStartTime = config:get("STARTLIGHTS", "SEQUENCE_LENGTH", 17)*1000,config:get("STARTLIGHTS", "SEQUENCE_START", 12)*1000
 
-    targetRateOfChange = config:get("HOLDBRAKES", "TARGET_RATE_OF_CHANGE", 100)
-    sampleTime = config:get("HOLDBRAKES", "SAMPLE_TIME", 0.5)
-    displayWarningFor = config:get("HOLDBRAKES", "DISPLAY_WARNING_FOR", 5)
-    forceBrakes = config:get("HOLDBRAKES", "FORCE_VICTIM_BRAKES", 0)
+        if config:get("STARTLIGHTS", "ADMIN_ONLY", 1) == 1 then
+            adminFlag = ui.OnlineExtraFlags.Admin
+        else
+            adminFlag = ui.OnlineExtraFlags.None
+        end
+    
 
-    if forceBrakes == 0 then
-        forceBrakes = false
-    elseif forceBrakes == 1 then
-        forceBrakes = true
-    end
+    ui.registerOnlineExtra(ui.Icons.TrafficLight, "Start Lights", function() return true end, function()
+
+end, function(okClicked)
+    ac.log("Start Lights Triggered")
+    math.randomseed(sim.systemTime)
+    triggerStart({ startTime = sim.currentSessionTime + seqDuration, delayTime = math.random(lightsOutMin,lightsOutMax) })
+end, adminFlag)
 end)
 
-ac.debug("!version", "startLights v0.1")
+ac.debug("!version", "startLights v0.5")
 
 function script.update(dt)
     --ac.debug("c",car.speedKmh)
@@ -71,6 +71,11 @@ function script.update(dt)
             started = true
             if startTime+delayTime - sim.currentSessionTime > 0 then
                 ac.sendChatMessage(car:driverName() .. " Jumped the start by:" .. math.round(startTime+delayTime - sim.currentSessionTime,0) .. "ms.")
+                if penaltyType == 0 then
+                    physics.setCarPenalty(ac.PenaltyType.TeleportToPits, math.round((startTime+delayTime - sim.currentSessionTime)/1000,0)+5)
+                elseif penaltyType > 0 then
+                    physics.setCarPenalty(ac.PenaltyType.MandatoryPits, penaltyType)
+                end
             else
                 ac.sendChatMessage(car:driverName() .. " Reacted in: " .. math.abs(math.round(startTime+delayTime - sim.currentSessionTime,0)) .. "ms.")
             end
@@ -78,12 +83,7 @@ function script.update(dt)
     end
 end
 
-ui.registerOnlineExtra(ui.Icons.ArrowRight, "Start Lights", function() return true end, function()
 
-end, function(okClicked)
-    ac.log("Start Lights Triggered")
-    triggerStart({ startTime = sim.currentSessionTime + seqDuration, delayTime = math.random(lightsOutMin,lightsOutMax) })
-end, ui.OnlineExtraFlags.None)
 
 triggerStart = ac.OnlineEvent({
     key = ac.StructItem.key("Start Lights"),
@@ -94,7 +94,12 @@ triggerStart = ac.OnlineEvent({
     delayTime = message.delayTime
     started = false
     ac.log("Start Light Trigger Received at " .. ac.lapTimeToString(sim.currentSessionTime, true))
-end)
+    --ac.log(delayTime)
+
+                if penaltyType == -2 then
+                    physics.lockUserGearboxFor((startTime+delayTime - sim.currentSessionTime)/1000, true )
+                end
+end, ac.SharedNamespace.ServerScript)
 
 ac.onResolutionChange(function()
     windowWidth, windowHeight = ac.getSim().windowWidth, ac.getSim().windowHeight
