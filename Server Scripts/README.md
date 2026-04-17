@@ -71,3 +71,22 @@ This one pretty much just came to me in a dream. relatively untested, allegedly 
 [SCRIPT_...]
 SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/evilAGA.lua"
 ```
+
+### Start Lights
+Adds a whole new start light system to AC! 
+
+Trigger a start light sequence from the chat app, it will sync on all clients and apply penalties for jump starts. Posts reaction times in chat on successful starts, and the opposite on jumpstarts. Includes fallback lights texture in case the proper one cant be found.
+
+Great for F1 style starts with a real formation/warm-up lap. Can add randomness to lights out so you cant just time the start.
+```
+[SCRIPT_...]
+SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/startLights.lua"
+
+[STARTLIGHTS]
+PENALTY_TYPE=-1 ;-2 for gearbox locked until start, -1 for no Penalty, 0 for teleport to pits, above 0 will be laps to serve drive through.
+RANDOM_DELAY_RANGE=3,5 ;minimum and maximum time in seconds from all lights being on to lights out. set to the same number to remove start randomization
+ADMIN_ONLY=1 ;1 means only admins can use the tool. 0 means anyone can begin a start sequence at any time, great for messing around with friends or on a server for practice race starts. If penalties are set you should really keep this to 1. 
+SEQUENCE_LENGTH=17 ;Time from lights appearing on screen to all lights being red in seconds.
+SEQUENCE_START=12 ;Time to start turning on lights in seconds, should be lower than SEQUENCE_LENGTH.
+;For example length 17 and start 12 would be 17 seconds from start to all lights on, after 12 of said 17 seconds lights would begin to turn on.
+```
