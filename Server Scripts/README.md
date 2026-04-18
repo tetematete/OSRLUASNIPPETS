@@ -91,4 +91,5 @@ SEQUENCE_START=12 ;Time to start turning on lights in seconds, should be lower t
 ;For example length 17 and start 12 would be 17 seconds from start to all lights on, after 12 of said 17 seconds lights would begin to turn on.
 REPLACE_AC_START=0 ;set to 1 to override the original start lights behaviour at the start of race sessions.
 ;ICON_URL="https://static.wikia.nocookie.net/rfti/images/6/68/Jerman.png" ;URL of a custom icon to use for the lights, image size doesnt matter, as it will get scaled to 64x64 to match AC ui placement.
+DEBUG_MODE = 0 ;Optional Logging and chat spam for troubleshooting problems.
 ```
