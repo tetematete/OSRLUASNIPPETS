@@ -87,8 +87,8 @@ ac.onOnlineWelcome(function(message, config) --Reads the script config from the 
    ui.registerOnlineExtra(ui.Icons.TrafficLight, "Start Lights", function() return true end, function()
 
     end, function(okClicked)
-        math.randomseed(sim.systemTime)
-        ac.log("Start Lights Message Sent")
+        math.randomseed(os.time())
+        ac.log("Start Lights Message Se nt")
         ac.setMessage("Start Lights Command Sent","")
         if debugMode == 1 then
             ac.debug("Settings Dump", tostring(config))
@@ -105,7 +105,7 @@ ac.onSessionStart(function()
     overrideTimer = 1
 end)
 
-ac.debug("!version", "startLights v0.7")
+ac.debug("!version", "startLights v0.7.5")
 
 function script.update(dt)
     if overrideTimer > 0 then
