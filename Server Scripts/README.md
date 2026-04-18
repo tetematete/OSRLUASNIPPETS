@@ -93,3 +93,12 @@ REPLACE_AC_START=0 ;set to 1 to override the original start lights behaviour at 
 ;ICON_URL="https://static.wikia.nocookie.net/rfti/images/6/68/Jerman.png" ;URL of a custom icon to use for the lights, image size doesnt matter, as it will get scaled to 64x64 to match AC ui placement.
 DEBUG_MODE = 0 ;Optional Logging and chat spam for troubleshooting problems.
 ```
+### Tyre Blankies
+Overrides the AC tyre blanket temps. Applies to all cars.
+```
+[SCRIPT_...]
+SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/tyreblankies.lua"
+
+[BLANKIES]
+TEMP_DEGC = 70 ;Desired tyre temp in degrees celsius 
+```
