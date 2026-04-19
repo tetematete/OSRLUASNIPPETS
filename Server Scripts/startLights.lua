@@ -19,7 +19,7 @@ local replaceACStart = 0
 math.randomseed(sim.randomSeed)
 local gracePeriod = 1000 * math.random(1, 2)
 local debugMode = 0
-
+local isf1style = 0
 
 local light = ui.ExtraCanvas(vec2(64, 64))
 --ac.debug("a", ui.imageSize(light))
@@ -50,7 +50,12 @@ local function overrideStart()
         started = false
         startTime = sim.currentSessionTime + sim.timeToSessionStart
         math.randomseed(sim.randomSeed + sim.currentSessionIndex * 100)
-        delayTime = math.random(lightsOutMin, lightsOutMax)
+        if isf1style == 1 then
+            delayTime = 999999999
+        else
+            delayTime = math.random(lightsOutMin, lightsOutMax)
+        end
+
         ac.disableExtraHUDElements('startingLights', true)
         --ac.debug("d", startTime)
         --ac.log(sim.currentSessionTime,sim.timeToSessionStart)
@@ -65,14 +70,11 @@ end
 ac.onOnlineWelcome(function(message, config) --Reads the script config from the extra options config
     local parsedConfig = tostring(config)
     --ac.debug("config", parsedConfig)
-    local configCheck = config:mapSection("STARTLIGHTS",
-        { TARGET_RATE_OF_CHANGE = 0, SAMPLE_TIME = 0, DISPLAY_WARNING_FOR = 0 })
-    lightsOutMin, lightsOutMax = config:get("STARTLIGHTS", "RANDOM_DELAY_RANGE", 3, 1) * 1000,
-        config:get("STARTLIGHTS", "RANDOM_DELAY_RANGE", 5, 2) * 1000
+    local configCheck = config:mapSection("STARTLIGHTS", { TARGET_RATE_OF_CHANGE = 0, SAMPLE_TIME = 0, DISPLAY_WARNING_FOR = 0 })
+    lightsOutMin, lightsOutMax = config:get("STARTLIGHTS", "RANDOM_DELAY_RANGE", 3, 1) * 1000, config:get("STARTLIGHTS", "RANDOM_DELAY_RANGE", 5, 2) * 1000
     penaltyType = config:get("STARTLIGHTS", "PENALTY_TYPE", -1)
-    seqDuration, seqStartTime = config:get("STARTLIGHTS", "SEQUENCE_LENGTH", 17) * 1000,
-        config:get("STARTLIGHTS", "SEQUENCE_START", 12) * 1000
-
+    seqDuration, seqStartTime = config:get("STARTLIGHTS", "SEQUENCE_LENGTH", 17) * 1000, config:get("STARTLIGHTS", "SEQUENCE_START", 12) * 1000
+    isf1style = config:get("STARTLIGHTS", "F1_STYLE", 0)
     if config:get("STARTLIGHTS", "ADMIN_ONLY", 1) == 1 then
         adminFlag = ui.OnlineExtraFlags.Admin
     else
@@ -84,28 +86,55 @@ ac.onOnlineWelcome(function(message, config) --Reads the script config from the 
 
     overrideTimer = 1
 
-   ui.registerOnlineExtra(ui.Icons.TrafficLight, "Start Lights", function() return true end, function()
-
-    end, function(okClicked)
+    ui.registerOnlineExtra(ui.Icons.TrafficLight, "Start Lights", function() return true end, nil, function(okClicked)
         math.randomseed(os.time())
-        ac.log("Start Lights Message Se nt")
-        ac.setMessage("Start Lights Command Sent","")
+        ac.log("Start Lights Message Sent")
+        ac.setMessage("Start Lights Command Sent", "")
         if debugMode == 1 then
             ac.debug("Settings Dump", tostring(config))
         end
-        
-        triggerStart({ startTime = sim.currentSessionTime + seqDuration, delayTime = math.random(lightsOutMin,
-            lightsOutMax) })
+        if isf1style == 0 then
+            triggerStart({
+                startTime = sim.currentSessionTime + seqDuration,
+                delayTime = math.random(lightsOutMin,
+                    lightsOutMax)
+            })
+        else
+            triggerStart({ startTime = sim.currentSessionTime + seqDuration, delayTime = 99999999 })
+        end
     end, adminFlag)
+
+    if isf1style == 1 then
+        ui.registerOnlineExtra(ui.Icons.TrafficLight, "Start Lights Out", function()
+            if startTime + delayTime - sim.currentSessionTime > 0 then
+                return true
+            else
+                return false
+            end
+        end, nil, function(okClicked)
+            math.randomseed(os.time())
+            ac.log("Start Lights Message Sent")
+            ac.setMessage("Start Lights Command Sent", "")
+            if debugMode == 1 then
+                ac.debug("Settings Dump", tostring(config))
+            end
+
+            triggerStart({ startTime = sim.currentSessionTime, delayTime = 100 })
+        end, adminFlag)
+    end
 end)
 
-
+ac.onClientConnected(function(connectedCarIndex, connectedSessionID)
+    if isf1style == 1 and started then
+        triggerStart({ startTime = startTime, delayTime = 100 })
+    end
+end)
 
 ac.onSessionStart(function()
     overrideTimer = 1
 end)
 
-ac.debug("!version", "startLights v0.7.5")
+ac.debug("!version", "startLights v0.8")
 
 function script.update(dt)
     if overrideTimer > 0 then
@@ -124,7 +153,7 @@ function script.update(dt)
     end
     --ac.debug("t", overrideTimer )
     --ac.debug("c",car.speedKmh)
-    --ac.debug("d", startTime+delayTime - gracePeriod)
+    ac.debug("d", startTime + delayTime - sim.currentSessionTime)
     --ac.debug("b", (sim.currentSessionTime) )
 
     if startTime + delayTime - sim.currentSessionTime < startTime + delayTime - gracePeriod and startTime + delayTime - sim.currentSessionTime > -5000 and not started then
@@ -132,7 +161,7 @@ function script.update(dt)
             started = true
             if startTime + delayTime - sim.currentSessionTime > 0 then
                 ac.sendChatMessage(car:driverName() ..
-                " Jumped the start by:" .. math.round(startTime + delayTime - sim.currentSessionTime, 0) .. "ms.")
+                    " Jumped the start by:" .. math.round(startTime + delayTime - sim.currentSessionTime, 0) .. "ms.")
                 if penaltyType == 0 then
                     physics.setCarPenalty(ac.PenaltyType.TeleportToPits,
                         math.round((startTime + delayTime - sim.currentSessionTime) / 1000, 0) + 5)
@@ -141,7 +170,7 @@ function script.update(dt)
                 end
             else
                 ac.sendChatMessage(car:driverName() ..
-                " Reacted in: " .. math.abs(math.round(startTime + delayTime - sim.currentSessionTime, 0)) .. "ms.")
+                    " Reacted in: " .. math.abs(math.round(startTime + delayTime - sim.currentSessionTime, 0)) .. "ms.")
             end
         end
     end
@@ -155,13 +184,19 @@ triggerStart = ac.OnlineEvent({
     startTime = message.startTime
     delayTime = message.delayTime
     started = false
-    ac.log("TIME: Start Light Trigger Received at " .. ac.lapTimeToString(sim.currentSessionTime, true) .. " | " .. ac.lapTimeToString(sim.sessionTimeLeft, true) .. " Remaining." .. 
-    "\n COMMS: Sent By: " .. sender:driverName() .. " Penalty Type:" .. penaltyType ..
-    "\n SYNC: Lights will all be lit in:" .. ac.lapTimeToString(startTime - sim.currentSessionTime) .. " Expected roughly: " .. ac.lapTimeToString(seqDuration).. " Delay between: " .. lightsOutMin/1000 .. "s and " .. lightsOutMax/1000 .. "s" )
+    ac.log("TIME: Start Light Trigger Received at " ..
+        ac.lapTimeToString(sim.currentSessionTime, true) ..
+        " | " .. ac.lapTimeToString(sim.sessionTimeLeft, true) .. " Remaining." ..
+        "\n COMMS: Sent By: " .. sender:driverName() .. " Penalty Type:" .. penaltyType ..
+        "\n SYNC: Lights will all be lit in:" ..
+        ac.lapTimeToString(startTime - sim.currentSessionTime) ..
+        " Expected roughly: " ..
+        ac.lapTimeToString(seqDuration) ..
+        " Delay between: " .. lightsOutMin / 1000 .. "s and " .. lightsOutMax / 1000 .. "s")
 
     if debugMode == 1 then
-        
-        ac.sendChatMessage("Start Light Command Successfully Recieved. Lights Out in: " .. ac.lapTimeToString(startTime+delayTime - sim.currentSessionTime,true))
+        ac.sendChatMessage("Start Light Command Successfully Recieved. Lights Out in: " ..
+        ac.lapTimeToString(startTime + delayTime - sim.currentSessionTime, true))
     end
     if penaltyType == -2 then
         physics.lockUserGearboxFor((startTime + delayTime - sim.currentSessionTime) / 1000, true)
