@@ -92,7 +92,8 @@ SEQUENCE_START=12 ;Time to start turning on lights in seconds, should be lower t
 REPLACE_AC_START=0 ;set to 1 to override the original start lights behaviour at the start of race sessions.
 ;ICON_URL="https://static.wikia.nocookie.net/rfti/images/6/68/Jerman.png" ;URL of a custom icon to use for the lights, image size doesnt matter, as it will get scaled to 64x64 to match AC ui placement.
 DEBUG_MODE = 0 ;Optional Logging and chat spam for troubleshooting problems.
-F1_STYLE = 0 ;Set to 1 to enable f1-style starts. Makes it so that someone must manually trigger the lights out. 
+F1_STYLE = 0 ;Set to 1 to enable f1-style starts. Makes it so that someone must manually trigger the lights out.
+F1_STYLE_DELAY = 50; Buffer time to allow clients to sync properly after manual start triggered. Lower = more chance of desync, Higher = more time for external scripts to react.
 ```
 ### Tyre Blankies
 Overrides the AC tyre blanket temps. Applies to all cars.
