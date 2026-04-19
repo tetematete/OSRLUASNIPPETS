@@ -20,6 +20,7 @@ math.randomseed(sim.randomSeed)
 local gracePeriod = 1000 * math.random(1, 2)
 local debugMode = 0
 local isf1style = 0
+local f1delay = 100
 
 local light = ui.ExtraCanvas(vec2(64, 64))
 --ac.debug("a", ui.imageSize(light))
@@ -75,6 +76,7 @@ ac.onOnlineWelcome(function(message, config) --Reads the script config from the 
     penaltyType = config:get("STARTLIGHTS", "PENALTY_TYPE", -1)
     seqDuration, seqStartTime = config:get("STARTLIGHTS", "SEQUENCE_LENGTH", 17) * 1000, config:get("STARTLIGHTS", "SEQUENCE_START", 12) * 1000
     isf1style = config:get("STARTLIGHTS", "F1_STYLE", 0)
+    f1delay = config:get("STARTLIGHTS", "F1_STYLE_DELAY", 100)
     if config:get("STARTLIGHTS", "ADMIN_ONLY", 1) == 1 then
         adminFlag = ui.OnlineExtraFlags.Admin
     else
@@ -119,14 +121,14 @@ ac.onOnlineWelcome(function(message, config) --Reads the script config from the 
                 ac.debug("Settings Dump", tostring(config))
             end
 
-            triggerStart({ startTime = sim.currentSessionTime, delayTime = 100 })
+            triggerStart({ startTime = sim.currentSessionTime, delayTime = f1delay })
         end, adminFlag)
     end
 end)
 
 ac.onClientConnected(function(connectedCarIndex, connectedSessionID)
     if isf1style == 1 and started then
-        triggerStart({ startTime = startTime, delayTime = 100 })
+        triggerStart({ startTime = startTime, delayTime = f1delay })
     end
 end)
 
