@@ -76,7 +76,7 @@ ac.onOnlineWelcome(function(message, config) --Reads the script config from the 
     penaltyType = config:get("STARTLIGHTS", "PENALTY_TYPE", -1)
     seqDuration, seqStartTime = config:get("STARTLIGHTS", "SEQUENCE_LENGTH", 17) * 1000, config:get("STARTLIGHTS", "SEQUENCE_START", 12) * 1000
     isf1style = config:get("STARTLIGHTS", "F1_STYLE", 0)
-    f1delay = config:get("STARTLIGHTS", "F1_STYLE_DELAY", 100)
+    f1delay = config:get("STARTLIGHTS", "F1_STYLE_DELAY", 50)
     if config:get("STARTLIGHTS", "ADMIN_ONLY", 1) == 1 then
         adminFlag = ui.OnlineExtraFlags.Admin
     else
@@ -155,7 +155,7 @@ function script.update(dt)
     end
     --ac.debug("t", overrideTimer )
     --ac.debug("c",car.speedKmh)
-    ac.debug("d", startTime + delayTime - sim.currentSessionTime)
+    --ac.debug("d", startTime + delayTime - sim.currentSessionTime)
     --ac.debug("b", (sim.currentSessionTime) )
 
     if startTime + delayTime - sim.currentSessionTime < startTime + delayTime - gracePeriod and startTime + delayTime - sim.currentSessionTime > -5000 and not started then
