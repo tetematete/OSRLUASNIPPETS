@@ -11,28 +11,16 @@ function initialization()
 SIM = ac.getSim()
 CAR = ac.getCar(SIM.focusedCar)
 
-lastReadTime = 0
-lastReadPoints = 0
-currentReadPoints = 0 --declare rate of change variables for good measure
-pointsRateOfChange = 0
-
 isWarning = false
 timeWarningStarted = 0 --Warning Variables
-
-targetRateOfChange = 50
-sampleTime = 0.5
-displayWarningFor = 5 --Config Defaults. 
-
-slowCarCooldown = 1000
-lastSlowCarBroadcastAttempt = 0
-lastSlowCarRecieve = 0
-slowCarDistance = 0.1
 
 --ui init
 settingsOverride = false
 windowWidth, windowHeight = ac.getSim().windowWidth,ac.getSim().windowHeight
 uiScale = ac.getUI().uiScale
 testGameState = false
+code60Timing = 0
+code60Grace = 0
 
 betterFlagSettings = ac.storage({
     flagWindowX=0,flagWindowY=0,flagWindowScale=1
@@ -47,17 +35,20 @@ ac.onOnlineWelcome(function(message, config) --Reads the script config from the 
     parsedConfig = tostring(config)
     configCheck = config:mapSection("BETTERFLAGS", { NO_OVERTAKE_ZONE_1 = {0,0}, NO_OVERTAKE_ZONE_2 = {0,0}, NO_OVERTAKE_ZONE_3 = {0,0}})
 
-    ac.debug("config", configCheck)
+    --ac.debug("config", configCheck)
 
     noOvertake1_S,noOvertake1_E = config:get("BETTERFLAGS", "NO_OVERTAKE_ZONE_1", 0), config:get("BETTERFLAGS", "NO_OVERTAKE_ZONE_1", 0,2)
     noOvertake2_S,noOvertake2_E = config:get("BETTERFLAGS", "NO_OVERTAKE_ZONE_2", 0), config:get("BETTERFLAGS", "NO_OVERTAKE_ZONE_2", 0,2)
     noOvertake3_S,noOvertake3_E = config:get("BETTERFLAGS", "NO_OVERTAKE_ZONE_3", 0), config:get("BETTERFLAGS", "NO_OVERTAKE_ZONE_3", 0,2)
     meatballThreshold = config:get("BETTERFLAGS", "MEATBALL_THRESHOLD", 0.10)
     slowCarFlagPersist = (config:get("BETTERFLAGS", "SLOW_CAR_FLAG_PERSIST", 1.1))*1000
-    slowCarDistance = (config:get("BETTERFLAGS", "SLOW_CAR_WARN_DISTANCE", 0.1))
+    slowCarDistanceBehind, slowCarDistanceAhead = (config:get("BETTERFLAGS", "SLOW_CAR_WARN_DISTANCE", 500)), (config:get("BETTERFLAGS", "SLOW_CAR_WARN_DISTANCE", 100,2))
+    slowCarSpeed = (config:get("BETTERFLAGS", "SLOW_CAR_SPEED", 35))
+    slowCarPenalties, code60Timer = (config:get("BETTERFLAGS", "SLOW_CAR_PENALTY", 0)),(config:get("BETTERFLAGS", "SLOW_CAR_PENALTY", 5,2)) -- -1 for none, 0 for chat warning, above for drive through in n laps. Above -1 makes the flag code60 instead.
+    enablePhysicsFlags = config:get("BETTERFLAGS", "ENABLE_PHYSICS_FLAGS", 1)
 end)
 
-slowCarEvent = ac.OnlineEvent({
+--[[slowCarEvent = ac.OnlineEvent({
   -- message structure layout:
   key = ac.StructItem.key('slowCarEvent'),
   slowCarProgress = ac.StructItem.float(),
@@ -68,8 +59,8 @@ slowCarEvent = ac.OnlineEvent({
       if ((data.slowCarProgress+0.01) > trackProgress-math.floor((trackProgress + slowCarDistance)) and (data.slowCarProgress < ((trackProgress + slowCarDistance)-math.floor((trackProgress + slowCarDistance))))) then
         lastSlowCarRecieve = totalElapsedTime
     end 
-end,ac.SharedNamespace.ServerScript)
-    ac.debug("!version", "betterflags v0.51")
+end,ac.SharedNamespace.ServerScript)]]
+    ac.debug("!version", "betterflags v0.6")
 
 function makeFlags()
 
@@ -156,11 +147,7 @@ function script.update(dt)
 
     totalElapsedTime = SIM.currentSessionTime
     trackProgress = CAR.splinePosition
-
-
-
-
-        ac.debug('Elapsed totalElapsedTime', totalElapsedTime)
+        --ac.debug('Elapsed totalElapsedTime', totalElapsedTime)
         --ac.debug('asconfig', parsedConfig)
 --        ac.debug('Progress', ac.flagType.Ambulance)
         --ac.debug('speed', CAR.wheels[1].suspensionDamage)
@@ -168,16 +155,40 @@ function script.update(dt)
         --ac.debug('uiScale', uiScale)
         --ac.debug('mirrorscale', mirrorScale)    
         --ac.debug('windowHeight', image1posy) 
+        --ac.debug("batt", currentFlags)
+        --ac.debug("dm", SIM.directMessagingAvailable)
+        --ac.debug("udp", SIM.directUDPMessagingAvailable)
 
-        ac.debug("batt", currentFlags)
-        ac.debug("dm", SIM.directMessagingAvailable)
-        ac.debug("udp", SIM.directUDPMessagingAvailable)
-
-    flagHandler()
+    flagHandler(dt)
+    penalties(dt)
 end
 
+function penalties(dt)
+    if currentFlags[4][1] == true and slowCarPenalties > -1 then
+        code60Timing = code60Timing - dt
+    else
+        code60Timing = code60Timer
+    end
+    if code60Timing <= 0 and ac.getCar(0).speedKmh > 61 then
+        code60Grace = code60Grace - dt
+    else
+        slowCarPenaltySet = false
+        code60Grace = 0.5
+    end
+    if code60Grace <= 0 and not slowCarPenaltySet then
+        slowCarPenaltySet = true
+        ac.log("smite Thee")
+        if slowCarPenalties == 0 then
+            ac.sendChatMessage(ac.getCar(0):driverName() .. " violated a code60 zone at: " .. ac.lapTimeToString(SIM.currentSessionTime,true))
+        elseif slowCarPenalties > 0 then
+            physics.setCarPenalty(ac.PenaltyType.MandatoryPits, slowCarPenalties)
+        end
+    end
+
+    --ac.debug("a", code60Timing)
+end
 --Logic Functins
-function flagHandler()
+function flagHandler(dt)
 
     if ((trackProgress > noOvertake1_S) and (trackProgress < noOvertake1_E)) or ((trackProgress > noOvertake2_S) and (trackProgress < noOvertake2_E) or ((trackProgress > noOvertake3_S) and (trackProgress < noOvertake3_E))) or settingsOverride then
         currentFlags[1][1] = true
@@ -185,10 +196,8 @@ function flagHandler()
         currentFlags[1][1] = false
     end
 
-    if shouldSlowCar() or settingsOverride then
-
-    currentFlags[2][1] = true
-
+    if slowCarPenalties == -1 and shouldSlowCar() or settingsOverride then
+        currentFlags[2][1] = true
     else
         currentFlags[2][1] =  false
     end
@@ -199,15 +208,25 @@ function flagHandler()
         currentFlags[3][1] = false
     end
 
+    if slowCarPenalties > -1 and shouldSlowCar() or settingsOverride then
+        currentFlags[4][1] = true
+    else
+        currentFlags[4][1] =  false
+    end
 
+    if (currentFlags[4][1] or currentFlags[2][1]) and enablePhysicsFlags == 1 then
+        physics.overrideRacingFlag(ac.FlagType.Caution)
+    else
+        physics.overrideRacingFlag(ac.FlagType.None)
+    end
 end
 
 function shouldSlowCar()
-    if (CAR.speedKmh < 30) and not(CAR.isInPitlane) and (CAR.wheelsOutside < 3) and (SIM.timeToSessionStart < -10000) then
+    --[[if (CAR.speedKmh < 30) and not(CAR.isInPitlane) and (CAR.wheelsOutside < 3) and (SIM.timeToSessionStart < -10000) then
         if lastSlowCarBroadcastAttempt + slowCarCooldown < totalElapsedTime then
             lastSlowCarBroadcastAttempt = totalElapsedTime
             --ac.broadcastSharedEvent("broadcastSlowCar", trackProgress)
-            slowCarEvent({slowCarProgress=trackProgress})
+            --slowCarEvent({slowCarProgress=trackProgress})
         end
 
         return true
@@ -215,8 +234,19 @@ function shouldSlowCar()
         return true
     else
         return false
-    end
+    end]]
+    local slowCar = false
+    
+    for cari, carNo in ac.iterateCars.ordered() do
+      if ac.getCar.ordered(cari) ~= nil and cari ~= 0 and not ac.getCar(0).isInPitlane then
+        local nearestSlowCar = math.round((carNo.splinePosition-ac.getCar(0).splinePosition)*SIM.trackLengthM,1)
+        if carNo.speedKmh < slowCarSpeed and not carNo.isInPitlane and math.round((carNo.splinePosition-ac.getCar(0).splinePosition)*SIM.trackLengthM,1) < slowCarDistanceBehind and math.round((carNo.splinePosition-ac.getCar(0).splinePosition)*SIM.trackLengthM,1) > -1*slowCarDistanceAhead then
+            slowCar = true
+        end
+      end
 
+    end
+    return slowCar
 end
 
 function shouldMeatball()
@@ -238,28 +268,6 @@ function shouldMeatball()
 end
 
 
---Communication Between Scripts
-
-
-
---Recieving
-
---0.9 0.1 
-
-
-
---[[ac.onSharedEvent("broadcastSlowCar", function(slowCarProgress)
-    if ((slowCarProgress+0.01) > trackProgress-math.floor((trackProgress + slowCarDistance)) and (slowCarProgress < ((trackProgress + slowCarDistance)-math.floor((trackProgress + slowCarDistance))))) then
-        lastSlowCarRecieve = totalElapsedTime
-    end 
-end)]]
-
---sending
-ac.onChatMessage(function()
-    --ac.broadcastSharedEvent("broadcastSlowCar", 0.3)
-    ac.store("testGameState", false)
-end)
-
 --UI FUNCTIONSSS
 ac.onResolutionChange(function()
     windowWidth, windowHeight = ac.getSim().windowWidth,ac.getSim().windowHeight
@@ -276,7 +284,6 @@ ac.onResolutionChange(function()
 end)
 
 ui.registerOnlineExtra(ui.Icons.Flag, "BetterFlags Settings", function() return true end,
-
     function() --UiCallback
         settingsOverride = true
 
@@ -298,6 +305,8 @@ end, ui.OnlineExtraFlags.Tool)
 
 
 function script.drawUI() --Draws a shitty UI for it.
+
+ui.text(code60Timing .. " " .. code60Grace)
 
 if settingsOverride then
     ui.setCursor(vec2(tempSettings.flagWindowX*windowWidth, tempSettings.flagWindowY*windowHeight))
@@ -325,6 +334,5 @@ ui.setCursor(vec2(0,0))
 
 
 end
-
 
 
