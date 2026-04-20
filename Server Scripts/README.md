@@ -27,8 +27,10 @@ NO_OVERTAKE_ZONE_1=0.2,0.3 ;Defines the First no-overtake zone as two points on 
 NO_OVERTAKE_ZONE_2=0,0 ;Use the track coordinates app from the ingame App Shelf app to quickly find the track coordinates.
 NO_OVERTAKE_ZONE_3=0,0
 MEATBALL_THRESHOLD=0.10 ;Suspension Damage Threshold to display meatball flag. Value from 0-1. Lower = more sensitive.
-SLOW_CAR_FLAG_PERSIST=1.1 ;How long to leave the slow car flag onscreen in seconds.
-SLOW_CAR_WARN_DISTANCE=0.1 ;How far back to warn players of a slow car ahead, in % of track distance. Will be changed to metres in future.
+SLOW_CAR_WARN_DISTANCE=500,100 ;how far in front and behind to enable slow car. (500,100 means slow car flag would be active 500m before and 100m after slow car)
+SLOW_CAR_PENALTY=-1,5 ; -1 for no penalty (white flag) , 0 for chat message (code60 flag), anything above will be laps to serve drive through (code60 flag). 
+;optional second value is how long people have to slow down to 60kmh. 
+ENABLE_PHYSICS_FLAGS=1 ;experimental, activates ac yellow under slow car conditions.
 ```
 
 ## Holdbrakes
