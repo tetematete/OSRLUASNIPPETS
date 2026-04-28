@@ -42,10 +42,14 @@ ac.onOnlineWelcome(function(message, config) --Reads the script config from the 
     noOvertake3_S,noOvertake3_E = config:get("BETTERFLAGS", "NO_OVERTAKE_ZONE_3", 0), config:get("BETTERFLAGS", "NO_OVERTAKE_ZONE_3", 0,2)
     meatballThreshold = config:get("BETTERFLAGS", "MEATBALL_THRESHOLD", 0.10)
     slowCarFlagPersist = (config:get("BETTERFLAGS", "SLOW_CAR_FLAG_PERSIST", 1.1))*1000
-    slowCarDistanceBehind, slowCarDistanceAhead = (config:get("BETTERFLAGS", "SLOW_CAR_WARN_DISTANCE", 500)), (config:get("BETTERFLAGS", "SLOW_CAR_WARN_DISTANCE", 100,2))
+    slowCarDistanceBehind, slowCarDistanceAhead = (config:get("BETTERFLAGS", "SLOW_CAR_WARN_DISTANCE", 500,1)), (config:get("BETTERFLAGS", "SLOW_CAR_WARN_DISTANCE", 100,2))
     slowCarSpeed = (config:get("BETTERFLAGS", "SLOW_CAR_SPEED", 35))
-    slowCarPenalties, code60Timer = (config:get("BETTERFLAGS", "SLOW_CAR_PENALTY", -1)),(config:get("BETTERFLAGS", "SLOW_CAR_PENALTY", 5,2)) -- -1 for none, 0 for chat warning, above for drive through in n laps. Above -1 makes the flag code60 instead.
+    slowCarPenalties, code60Timer = (config:get("BETTERFLAGS", "SLOW_CAR_PENALTY", -1,1)),(config:get("BETTERFLAGS", "SLOW_CAR_PENALTY", 5,2)) -- -1 for none, 0 for chat warning, above for drive through in n laps. Above -1 makes the flag code60 instead.
     enablePhysicsFlags = config:get("BETTERFLAGS", "ENABLE_PHYSICS_FLAGS", 1)
+
+    ac.log("Slow Car Test Stuff:")
+    ac.log(slowCarDistanceBehind, slowCarDistanceAhead)
+    ac.log(slowCarPenalties, code60Timer)
 end)
 
 --[[slowCarEvent = ac.OnlineEvent({
@@ -60,7 +64,7 @@ end)
         lastSlowCarRecieve = totalElapsedTime
     end 
 end,ac.SharedNamespace.ServerScript)]]
-    ac.debug("!version", "betterflags v0.6")
+    ac.debug("!version", "betterflags v0.65")
 
 function makeFlags()
 
@@ -238,7 +242,7 @@ function shouldSlowCar()
     local slowCar = false
     
     for cari, carNo in ac.iterateCars.ordered() do
-      if ac.getCar.ordered(cari) ~= nil and cari ~= 0 and not ac.getCar(0).isInPitlane then
+      if ac.getCar.ordered(cari-1) ~= nil and --[[cari ~= 0 and]] not ac.getCar(0).isInPitlane then
         local nearestSlowCar = math.round((carNo.splinePosition-ac.getCar(0).splinePosition)*SIM.trackLengthM,1)
         if carNo.speedKmh < slowCarSpeed and not carNo.isInPitlane and math.round((carNo.splinePosition-ac.getCar(0).splinePosition)*SIM.trackLengthM,1) < slowCarDistanceBehind and math.round((carNo.splinePosition-ac.getCar(0).splinePosition)*SIM.trackLengthM,1) > -1*slowCarDistanceAhead then
             slowCar = true
