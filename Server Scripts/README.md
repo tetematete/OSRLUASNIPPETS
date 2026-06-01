@@ -108,6 +108,7 @@ TEMP_DEGC = 70 ;Desired tyre temp in degrees celsius
 ```
 
 ## Rubberband
+finished up an old script I had laying around. For less serious races where having fun is the priority. Automatically applies restrictor/ballast based on gap to leader.
 ```ini
 [SCRIPT_...]
 SCRIPT="https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/rubberband.lua"
