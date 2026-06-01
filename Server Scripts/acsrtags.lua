@@ -1,7 +1,7 @@
 local serverURL
 local parsedConfig
 local ratingsTable
-local timetableURL = "http://70.51.165.122:8082/ENTRY" --"http://".. ac.getServerIP() .. ":" ..ac.getServerPortHTTP() .. "/timetable.json"
+local timetableURL = "http://".. ac.getServerIP() .. ":" ..ac.getServerPortHTTP() .. "/ENTRY"
 local timeTable
 local displayTable
 local enabled = false
