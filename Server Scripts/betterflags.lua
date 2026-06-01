@@ -13,7 +13,8 @@ CAR = ac.getCar(SIM.focusedCar)
 
 isWarning = false
 timeWarningStarted = 0 --Warning Variables
-
+slowCar = false
+slowCarTimer = 0
 --ui init
 settingsOverride = false
 windowWidth, windowHeight = ac.getSim().windowWidth,ac.getSim().windowHeight
@@ -21,11 +22,12 @@ uiScale = ac.getUI().uiScale
 testGameState = false
 code60Timing = 0
 code60Grace = 0
+enabled = false
+
 
 betterFlagSettings = ac.storage({
     flagWindowX=0,flagWindowY=0,flagWindowScale=1
 })
-
 tempSettings = betterFlagSettings
 
 ac.blockSystemMessages("$CSP0:")
@@ -50,86 +52,109 @@ ac.onOnlineWelcome(function(message, config) --Reads the script config from the 
     ac.log("Slow Car Test Stuff:")
     ac.log(slowCarDistanceBehind, slowCarDistanceAhead)
     ac.log(slowCarPenalties, code60Timer)
+    
+    enabled = true
 end)
 
---[[slowCarEvent = ac.OnlineEvent({
-  -- message structure layout:
-  key = ac.StructItem.key('slowCarEvent'),
-  slowCarProgress = ac.StructItem.float(),
-}, function (sender, data)
+    ac.debug("!version", "betterflags v0.7")
 
-  ac.debug('Got message: from'  , sender and sender.index or -1)
-  ac.debug('Got message: text', data.slowCarProgress)
-      if ((data.slowCarProgress+0.01) > trackProgress-math.floor((trackProgress + slowCarDistance)) and (data.slowCarProgress < ((trackProgress + slowCarDistance)-math.floor((trackProgress + slowCarDistance))))) then
-        lastSlowCarRecieve = totalElapsedTime
-    end 
-end,ac.SharedNamespace.ServerScript)]]
-    ac.debug("!version", "betterflags v0.65")
+
+if sim.isTripleMode then
+        tripleOffset = -(ac.getSim().windowWidth*ac.getTripleConfiguration().screens[1].xWidth)
+
+    ac.debug("a", ac.getTripleConfiguration().screens[1].xWidth)
+    ac.debug("screen", tripleOffset)
+    
+else
+    tripleOffset = 0
+end
+
 
 function makeFlags()
 
-    startFlag = ui.ExtraCanvas(vec2(256,256)) 
+    startFlag = ui.ExtraCanvas(vec2(256,256))
+    --startFlag = ui.ExtraCanvas(ac.getSim().windowSize)
     startFlag:setName("startFlag")
     startFlag:update(function (dt)
+        ui.beginTransformMatrix()
         ui.drawRaceFlag(ac.FlagType.Start)
+        ui.endTransformMatrix(mat3x3(vec3(1,0, tripleOffset),vec3(0,1,0),vec3(0,0,1)))
     end)
 
     cautionFlag = ui.ExtraCanvas(vec2(256,256)) 
     cautionFlag:setName("cautionFlag")
     cautionFlag:update(function (dt)
+        ui.beginTransformMatrix()
         ui.drawRaceFlag(ac.FlagType.Caution)
+        ui.endTransformMatrix(mat3x3(vec3(1,0, tripleOffset),vec3(0,1,0),vec3(0,0,1)))
     end)
 
     slipperyFlag = ui.ExtraCanvas(vec2(256,256)) 
     slipperyFlag:setName("slipperyFlag")
     slipperyFlag:update(function (dt)
+        ui.beginTransformMatrix()
         ui.drawRaceFlag(ac.FlagType.Slippery)
+        ui.endTransformMatrix(mat3x3(vec3(1,0, tripleOffset),vec3(0,1,0),vec3(0,0,1)))
     end)
 
     blackFlag = ui.ExtraCanvas(vec2(256,256)) 
     blackFlag:setName("blackFlag")
     blackFlag:update(function (dt)
+        ui.beginTransformMatrix()
         ui.drawRaceFlag(ac.FlagType.Stop)
+        ui.endTransformMatrix(mat3x3(vec3(1,0, tripleOffset),vec3(0,1,0),vec3(0,0,1)))
     end)
 
     whiteFlag = ui.ExtraCanvas(vec2(256,256)) 
     whiteFlag:setName("whiteFlag")
     whiteFlag:update(function (dt)
+        ui.beginTransformMatrix()
         ui.drawRaceFlag(ac.FlagType.SlowVehicle)
+        ui.endTransformMatrix(mat3x3(vec3(1,0, tripleOffset),vec3(0,1,0),vec3(0,0,1)))
     end)
 
     ambulanceFlag = ui.ExtraCanvas(vec2(256,256)) 
     ambulanceFlag:setName("ambulanceFlag")
     ambulanceFlag:update(function (dt)
+        ui.beginTransformMatrix()
         ui.drawRaceFlag(ac.FlagType.Ambulance)
+        ui.endTransformMatrix(mat3x3(vec3(1,0, tripleOffset),vec3(0,1,0),vec3(0,0,1)))
     end)
 
     blackWhiteFlag = ui.ExtraCanvas(vec2(256,256)) 
     blackWhiteFlag:setName("blackWhiteFlag")
     blackWhiteFlag:update(function (dt)
+        ui.beginTransformMatrix()
         ui.drawRaceFlag(ac.FlagType.ReturnToPits)
+        ui.endTransformMatrix(mat3x3(vec3(1,0, tripleOffset),vec3(0,1,0),vec3(0,0,1)))
     end)
 
     meatballFlag = ui.ExtraCanvas(vec2(256,256)) 
     meatballFlag:setName("meatballFlag")
     meatballFlag:update(function (dt)
+        ui.beginTransformMatrix()
         ui.drawRaceFlag(ac.FlagType.MechanicalFailure)
+        ui.endTransformMatrix(mat3x3(vec3(1,0, tripleOffset),vec3(0,1,0),vec3(0,0,1)))
     end)
 
     blueFlag = ui.ExtraCanvas(vec2(256,256)) 
     blueFlag:setName("blueFlag")
     blueFlag:update(function (dt)
+        ui.beginTransformMatrix()
         ui.drawRaceFlag(ac.FlagType.FasterCar)
+        ui.endTransformMatrix(mat3x3(vec3(1,0, tripleOffset),vec3(0,1,0),vec3(0,0,1)))
     end)
 
     code60Flag = ui.ExtraCanvas(vec2(256,256)) 
     code60Flag:setName("code60Flag")
     code60Flag:update(function (dt)
+        ui.beginTransformMatrix()
         ui.drawRaceFlag(ac.FlagType.Code60)
+        ui.endTransformMatrix(mat3x3(vec3(1,0, tripleOffset),vec3(0,1,0),vec3(0,0,1)))
     end)
 
-    flagsWindow = ui.ExtraCanvas(vec2(windowWidth,windowHeight))
-    flagsWindow:setName("FlagWindow")
+    --flagsWindow = ui.ExtraCanvas(vec2(windowWidth,windowHeight))
+    --flagsWindow:setName("FlagWindow")
 
     NoOver = {true,slipperyFlag}
     Slow = {true, whiteFlag}
@@ -150,7 +175,7 @@ ac.onSessionStart(function() initialization() end)
 function script.update(dt)
 
     totalElapsedTime = SIM.currentSessionTime
-    trackProgress = CAR.splinePosition
+    trackProgress = ac.getCar(0).splinePosition
         --ac.debug('Elapsed totalElapsedTime', totalElapsedTime)
         --ac.debug('asconfig', parsedConfig)
 --        ac.debug('Progress', ac.flagType.Ambulance)
@@ -162,9 +187,11 @@ function script.update(dt)
         --ac.debug("batt", currentFlags)
         --ac.debug("dm", SIM.directMessagingAvailable)
         --ac.debug("udp", SIM.directUDPMessagingAvailable)
+    if enabled then
+        flagHandler(dt)
+        penalties(dt)    
+    end
 
-    flagHandler(dt)
-    penalties(dt)
 end
 
 function penalties(dt)
@@ -189,6 +216,13 @@ function penalties(dt)
         end
     end
 
+    if slowCarTimer < 0 then
+        shouldSlowCar()
+        slowCarTimer = 0.5
+    else
+        slowCarTimer = slowCarTimer - dt
+    end
+
     --ac.debug("a", code60Timing)
 end
 --Logic Functins
@@ -200,7 +234,7 @@ function flagHandler(dt)
         currentFlags[1][1] = false
     end
 
-    if slowCarPenalties == -1 and shouldSlowCar() or settingsOverride then
+    if slowCarPenalties == -1 and slowCar or settingsOverride then
         currentFlags[2][1] = true
     else
         currentFlags[2][1] =  false
@@ -212,7 +246,7 @@ function flagHandler(dt)
         currentFlags[3][1] = false
     end
 
-    if slowCarPenalties > -1 and shouldSlowCar() or settingsOverride then
+    if slowCarPenalties > -1 and slowCar or settingsOverride then
         currentFlags[4][1] = true
     else
         currentFlags[4][1] =  false
@@ -239,10 +273,10 @@ function shouldSlowCar()
     else
         return false
     end]]
-    local slowCar = false
+            slowCar = false
     
     for cari, carNo in ac.iterateCars.ordered() do
-      if ac.getCar.ordered(cari-1) ~= nil and --[[cari ~= 0 and]] not ac.getCar(0).isInPitlane then
+      if (ac.getCar.ordered(cari-1) ~= nil and --[[cari ~= 0 and]] not ac.getCar(0).isInPitlane) and cari < 15 then
         local nearestSlowCar = math.round((carNo.splinePosition-ac.getCar(0).splinePosition)*SIM.trackLengthM,1)
         if carNo.speedKmh < slowCarSpeed and not carNo.isInPitlane and math.round((carNo.splinePosition-ac.getCar(0).splinePosition)*SIM.trackLengthM,1) < slowCarDistanceBehind and math.round((carNo.splinePosition-ac.getCar(0).splinePosition)*SIM.trackLengthM,1) > -1*slowCarDistanceAhead then
             slowCar = true
@@ -250,7 +284,8 @@ function shouldSlowCar()
       end
 
     end
-    return slowCar
+
+
 end
 
 function shouldMeatball()
@@ -262,8 +297,6 @@ function shouldMeatball()
     CAR.wheels[1].isBlown or
     CAR.wheels[2].isBlown or
     CAR.wheels[3].isBlown
-    --CAR.wheels[4].isBlown
-
     then
         return true
     else
@@ -313,18 +346,33 @@ function script.drawUI() --Draws a shitty UI for it.
 ui.text(code60Timing .. " " .. code60Grace)
 
 if settingsOverride then
-    ui.setCursor(vec2(tempSettings.flagWindowX*windowWidth, tempSettings.flagWindowY*windowHeight))
+    --ui.setCursor(vec2(tempSettings.flagWindowX*windowWidth, tempSettings.flagWindowY*windowHeight))
+    windowPos = vec2(tempSettings.flagWindowX*windowWidth, tempSettings.flagWindowY*windowHeight)
 else
-    ui.setCursor(vec2(betterFlagSettings.flagWindowX*windowWidth, betterFlagSettings.flagWindowY*windowHeight))
+    --ui.setCursor(vec2(betterFlagSettings.flagWindowX*windowWidth, betterFlagSettings.flagWindowY*windowHeight))
+    windowPos = vec2(betterFlagSettings.flagWindowX*windowWidth, betterFlagSettings.flagWindowY*windowHeight)
 end
 
-flagsWindow:clear()
+
+ui.transparentWindow("flagsWindow", windowPos, vec2(windowWidth,windowHeight), function ()
+
+    local blanks = 0
+    for i = 1, #currentFlags do
+
+        if currentFlags[i][1] then
+            ui.drawImage(currentFlags[i][2],vec2((120*(i-blanks))-tripleOffset,0),vec2(256+(120*(i-blanks))-tripleOffset,256))
+        else
+            blanks = blanks + 1
+        end
+    end
+end)
+--[[flagsWindow:clear()
 flagsWindow:update(function(dt)
         local blanks = 0
     for i = 1, #currentFlags do
 
         if currentFlags[i][1] then
-            ui.drawImage(currentFlags[i][2],vec2((120*(i-blanks)),0),vec2(256+(120*(i-blanks)),256))
+            ui.drawImage(currentFlags[i][2],vec2((120*(i-blanks))-tripleOffset,0),vec2(256+(120*(i-blanks))-tripleOffset,256))
         else
             blanks = blanks + 1
         end
@@ -332,7 +380,7 @@ flagsWindow:update(function(dt)
 end)
 ui.image(flagsWindow, vec2(windowWidth,windowHeight))
 
-ui.setCursor(vec2(0,0))
+ui.setCursor(vec2(0,0))]]
 
 
 
