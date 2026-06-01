@@ -6,7 +6,7 @@ local timeTable
 local displayTable
 local enabled = false
 local classColours = {Intermediate=rgbm.colors.green, ["Noob Class"] = rgbm.colors.yellow}
-ac.debug("!version", "acsrtags v0.8")
+ac.debug("!version", "acsrtags v0.9")
 
 ac.onOnlineWelcome(function(message, config) --Reads the script config from the extra options config
     parsedConfig = tostring(config)
