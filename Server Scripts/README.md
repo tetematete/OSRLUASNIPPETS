@@ -18,7 +18,7 @@ Better flag implementation! Adds Meatball Flag, No-overtake zones, and Slow Car 
 If you open the "Chat" app, and click the lightbulb, you can preview and move the flags anywhere on screen.
 
 Put the following into your AC server CSP EXTRA OPTIONS:
-```
+```ini
 [SCRIPT_...]
 SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/betterflags.lua"
 
@@ -41,7 +41,7 @@ Worry no more! This online script gives them a gentle reminder to hold their bra
 
 IMPORTANT CONFIG STUFF
 Put the following into your AC server CSP EXTRA OPTIONS:
-```
+```ini
 [SCRIPT_...]
 SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/holdbrakes.lua"
 
@@ -57,7 +57,7 @@ Changes the driver tags ingame to display Driver Safety and Skill Rating from AC
 Displays events remaining for provisional drivers. Uses championship endpoint, so will only work for drivers registered in ACSR-enabled championship. Races should also be started from said championship, or using the start practice session button.
 
 It can be disabled from the chat app.
-```
+```ini
 [SCRIPT_...]
 SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/acsrtags.lua"
 
@@ -69,7 +69,7 @@ CHAMPIONSHIP_URL="http://127.0.0.1:8772/championship/000000000000-0000-0000-0000
 Acts as an override for gamepad assist scripts. To be used in places where strong assists could have an affect on competitive integrity.
 
 This one pretty much just came to me in a dream. relatively untested, allegedly breaks cmrt leaderboard somehow but im really not sure how that could be the case. 
-```
+```ini
 [SCRIPT_...]
 SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/evilAGA.lua"
 ```
@@ -80,7 +80,7 @@ Adds a whole new start light system to AC!
 Trigger a start light sequence from the chat app, it will sync on all clients and apply penalties for jump starts. Posts reaction times in chat on successful starts, and the opposite on jumpstarts. Includes fallback lights texture in case the proper one cant be found.
 
 Great for F1 style starts with a real formation/warm-up lap. Can add randomness to lights out so you cant just time the start.
-```
+```ini
 [SCRIPT_...]
 SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/startLights.lua"
 
@@ -99,10 +99,26 @@ F1_STYLE_DELAY = 50; Buffer time to allow clients to sync properly after manual 
 ```
 ### Tyre Blankies
 Overrides the AC tyre blanket temps. Applies to all cars.
-```
+```ini
 [SCRIPT_...]
 SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/tyreblankies.lua"
 
 [BLANKIES]
 TEMP_DEGC = 70 ;Desired tyre temp in degrees celsius 
+```
+
+### Rubberband
+```ini
+[SCRIPT_...]
+SCRIPT="https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/rubberband.lua"
+
+[RUBBERBAND]
+BALLAST=(|0=100|5=50|10=-200|) ;Linear Lookup Table Format (|secondsToLeader=ballast|)
+;Max Ballast 5000kg, going past negative 500 bad for game and bad for handling.
+RESTRICTOR=(|0=200|10=0|) ;(|secondsToLeader=restrictor%|)
+;Max Restrictor 400%, doesnt support negatives afaik
+ACTIVE_ON_LAP=0 ;Activate when leader is on this lap. 0 is active from start.
+ACTIVE_PQR=0,0,1 ;What session types to activate rubberbanding. P/Q untested. 
+;0,0,1 is disabled in practice, quali; enabled in race
+SEC_PER_UPDATE=0.5 ;Performance is mildly worse than I expected so turn this up if there are issues. 0 runs every frame.
 ```
