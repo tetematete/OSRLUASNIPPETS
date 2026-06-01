@@ -74,7 +74,7 @@ This one pretty much just came to me in a dream. relatively untested, allegedly 
 SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/evilAGA.lua"
 ```
 
-### Start Lights
+## Start Lights
 Adds a whole new start light system to AC! 
 
 Trigger a start light sequence from the chat app, it will sync on all clients and apply penalties for jump starts. Posts reaction times in chat on successful starts, and the opposite on jumpstarts. Includes fallback lights texture in case the proper one cant be found.
@@ -97,7 +97,7 @@ DEBUG_MODE = 0 ;Optional Logging and chat spam for troubleshooting problems.
 F1_STYLE = 0 ;Set to 1 to enable f1-style starts. Makes it so that someone must manually trigger the lights out.
 F1_STYLE_DELAY = 50; Buffer time to allow clients to sync properly after manual start triggered. Lower = more chance of desync, Higher = more time for external scripts to react.
 ```
-### Tyre Blankies
+## Tyre Blankies
 Overrides the AC tyre blanket temps. Applies to all cars.
 ```ini
 [SCRIPT_...]
@@ -107,7 +107,7 @@ SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads
 TEMP_DEGC = 70 ;Desired tyre temp in degrees celsius 
 ```
 
-### Rubberband
+## Rubberband
 ```ini
 [SCRIPT_...]
 SCRIPT="https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/rubberband.lua"
