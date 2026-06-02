@@ -7,7 +7,7 @@ local displayTable
 local enabled = false
 local classColours = {Intermediate=rgbm.colors.green, ["Noob Class"] = rgbm.colors.yellow}
 local classOffset = 0
-ac.debug("!version", "acsrtags v0.9")
+ac.debug("!version", "acsrtags v0.97")
 
 ac.onOnlineWelcome(function(message, config) --Reads the script config from the extra options config
     parsedConfig = tostring(config)
@@ -43,15 +43,20 @@ ac.onClientConnected(function (connectedCarIndex, connectedSessionID)
         timeTable = trytimeTable
       end
     end)
+    calcStripeOffset(sim.currentSessionIndex)
 end)
 
 ac.onSessionStart(function (sessionIndex, restarted)
+  calcStripeOffset(sessionIndex)
+end)
+
+function calcStripeOffset(sessionIndex)
   if ac.getSession(sessionIndex).type == ac.SessionType.Race then
     classOffset = 50
   else
     classOffset = 0
   end
-end)
+end
 ui.onDriverNameTag(false, nil, function(index)
 
   if enabled then
