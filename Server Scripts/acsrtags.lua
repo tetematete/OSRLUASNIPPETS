@@ -6,6 +6,7 @@ local timeTable
 local displayTable
 local enabled = false
 local classColours = {Intermediate=rgbm.colors.green, ["Noob Class"] = rgbm.colors.yellow}
+local classOffset = 0
 ac.debug("!version", "acsrtags v0.9")
 
 ac.onOnlineWelcome(function(message, config) --Reads the script config from the extra options config
@@ -44,7 +45,13 @@ ac.onClientConnected(function (connectedCarIndex, connectedSessionID)
     end)
 end)
 
-
+ac.onSessionStart(function (sessionIndex, restarted)
+  if ac.getSession(sessionIndex).type == ac.SessionType.Race then
+    classOffset = 50
+  else
+    classOffset = 0
+  end
+end)
 ui.onDriverNameTag(false, nil, function(index)
 
   if enabled then
@@ -71,7 +78,7 @@ ui.onDriverNameTag(false, nil, function(index)
         ui.drawTextClipped(displayTable["skill_rating_grade"], vec2(424, 3), vec2(508, 58), rgbm.colors.white,
           vec2(0.5, 0))
       end
-      ui.drawQuadFilled(vec2(50,0), vec2(65,0),vec2(45,64),vec2(30,64), classColours[displayTable["Class"]])
+      ui.drawQuadFilled(vec2(50+classOffset,0), vec2(65+classOffset,0),vec2(45+classOffset,64),vec2(30+classOffset,64), classColours[displayTable["Class"]])
     else 
         ui.drawRectFilled(vec2(420, 0), vec2(512, 64), rgbm.colors.gray, ui.CornerFlags.All)
         ui.drawRectFilled(vec2(424, 6), vec2(508, 58), rgbm.colors.orange, ui.CornerFlags.All)
@@ -82,7 +89,6 @@ ui.onDriverNameTag(false, nil, function(index)
         ui.setNextTextBold()
         ui.drawTextClipped("0/8", vec2(424, 6), vec2(508, 58), rgbm.colors.black,
           vec2(0.5, 0.8))
-      
     end
 
   end
@@ -127,7 +133,7 @@ function entryEndpointParse(data)
   return parsedTable
 end
 
---[[web.get("http://70.51.165.122:8082/ENTRY", function (err, response)
+--[[web.gzet("http://70.51.165.122:8082/ENTRY", function (err, response)
   ac.debug("body", response.body)
   ac.debug("Parsed", entryEndpointParse(response.body))
 end)]]
