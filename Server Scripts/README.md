@@ -23,9 +23,9 @@ Put the following into your AC server CSP EXTRA OPTIONS:
 SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/betterflags.lua"
 
 [BETTERFLAGS]
-NO_OVERTAKE_ZONE_1=0.2,0.3 ;Defines the First no-overtake zone as two points on track, flag will be displayed between them.
-NO_OVERTAKE_ZONE_2=0,0 ;Use the track coordinates app from the ingame App Shelf app to quickly find the track coordinates.
-NO_OVERTAKE_ZONE_3=0,0
+NO_OVERTAKE=(|0.2=1|0.3=0|0.5=1|0.6=0|) ;No Overtake Zone LUT, (|0-1 track progress=1 on, 0 off|)
+;Above example turns on at 0.2 track progress, off at 0.3, on at 0.5, off at 0.6
+;Use the track coordinates app from the ingame App Shelf app to quickly find the track coordinates.
 MEATBALL_THRESHOLD=0.10 ;Suspension Damage Threshold to display meatball flag. Value from 0-1. Lower = more sensitive.
 SLOW_CAR_WARN_DISTANCE=500,100 ;how far in front and behind to enable slow car. (500,100 means slow car flag would be active 500m before and 100m after slow car)
 SLOW_CAR_PENALTY=-1,5 ; -1 for no penalty (white flag) , 0 for chat message (code60 flag), anything above will be laps to serve drive through (code60 flag). 
