@@ -1,4 +1,4 @@
-ac.debug("!version", "rubberbanding v0.5")
+ac.debug("!version", "rubberband v0.5")
 local ballastlut    --= ac.DataLUT11.parse("|0=500|3=100|10=-200|")
 local restrictorlut --= ac.DataLUT11.parse("|0=50|10=0")
 local lcar = 0
@@ -25,6 +25,7 @@ ac.onOnlineWelcome(function(message, config)
   ballastlut = config:tryGetLut("RUBBERBAND", "BALLAST")
   restrictorlut = config:tryGetLut("RUBBERBAND", "RESTRICTOR")
   lapToActivate = config:get("RUBBERBAND", "ACTIVE_ON_LAP", 0)
+  updDelay = config:get("RUBBERBAND", "SEC_PER_UPDATE", 0 )
   practice, quali, race = config:get("RUBBERBAND", "ACTIVE_PQR", 0, 1), config:get("RUBBERBAND", "ACTIVE_PQR", 0, 2), config:get("RUBBERBAND", "ACTIVE_PQR", 1, 3)
 
   setActive()
@@ -35,13 +36,18 @@ ac.onSessionStart(function (sessionIndex, restarted)
 end)
 
 function script.update(dt)
-  if active then
-    lcar = ac.getCar.leaderboard(0)
-    local gap = ac.getGapBetweenCars(0, lcar.index)
+    if active then
 
-    if selfCar.speedKmh > 50 and lcar.lapCount >= lapToActivate then
-      physics.setCarRestrictor(0, restrictorlut:get(gap))
-      physics.setCarBallast(0, ballastlut:get(gap))
+        if updTimer > 0 then
+            updTimer = updTimer - dt
+        else
+            lcar = ac.getCar.leaderboard(0)
+            local gap = ac.getGapBetweenCars(0, lcar.index)
+            if selfCar.speedKmh > 50 and lcar.lapCount >= lapToActivate then
+                physics.setCarRestrictor(0, restrictorlut:get(gap))
+                physics.setCarBallast(0, ballastlut:get(gap))
+            end
+            updTimer = updDelay
+        end
     end
-  end
 end
