@@ -1,9 +1,10 @@
-ac.debug("!version", "reporting v0.5")
+ac.debug("!version", "reporting v0.6")
 local sim = ac.getSim()
 local timestamp = 0
 local sessionStartTime = 0
 local session = ac.getSession(sim.currentSessionIndex)
 local fadeTimer = 0
+local cooldown = 5
 local timeout = 0
 local reportStore = ac.storage {
   pos = vec2(300, 300),
@@ -12,12 +13,22 @@ local flagDragging = false
 local flagStartPos = vec2(0, 0)
 local reportBind = ac.ControlButton("reportBinding")
 local reportLimit = 2
+local reports
 
 if not sim.isReplayActive then
   ac.writeReplayBlob("TimestampSessionStart", os.time() - sim.currentSessionTime / 1000)
 else
   sessionStartTime = ac.readReplayBlob("TimestampSessionStart")
 end
+
+ac.onOnlineWelcome(function (message, config)
+  local SECTION = "REPORTING"
+  reportLimit = config:get(SECTION, "LIMIT_PER_LAP", 2, 1)
+  cooldown = config:get(SECTION, "COOLDOWN", 5, 1)
+
+  reports = reportLimit
+end)
+
 
 function script.drawUI()
   local dt = ac.getDeltaT()
@@ -34,7 +45,7 @@ function script.drawUI()
 
     ui.pushStyleColor(ui.StyleColor.Text, rgbm(255, 165, 0, math.clamp(fadeTimer / 2, 0, 1)))
 
-    if reportLimit >= 0 then
+    if reports >= 0 then
       ui.text("Report Sent!")
     else
       ui.text("No Reports Remaining For This Lap")
@@ -54,24 +65,26 @@ function script.drawUI()
       flagDragging = false
     end
   end)
-  ac.debug("as", reportLimit)
+  ac.debug("as", reports)
 end
 --mmmmm callbacks
 reportBind:onPressed(function() 
-  if reportLimit > 0 and fadeTimer <= 0 then
+  if reports > 0 and fadeTimer <= 0 then
     report({balls=true})
   end
   if fadeTimer <= 0 then
-  reportLimit = reportLimit - 1
-  fadeTimer = 5
+  reports = reports - 1
+  fadeTimer = cooldown
   end
 end)
 
 ac.onLapCompleted(0, function(carIndex, lapTime, valid, cuts, lapCount)
-  reportLimit = 2
+  reports = reportLimit
+  fadeTimer = 0
 end)
+
 ac.onSessionStart(function(sessionIndex, restarted)
-  reportLimit = 2
+  reports = reportLimit
 end)
 
 report = ac.OnlineEvent({ ac.StructItem.key("AwesomeReportKey"), balls=ac.StructItem.boolean()}, function(sender, message) end)
