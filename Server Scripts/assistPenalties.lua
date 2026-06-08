@@ -1,4 +1,4 @@
-ac.debug("!version", "assistPenalties v0.6")
+ac.debug("!version", "assistPenalties v0.7")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -22,8 +22,13 @@ local lockABS = false
 local lockTC = false
 local chosenABS = 0
 local chosenTC = 0
-ac.setABS(0)
-ac.setTC(0)
+
+if car.absModes == 0 then
+  ac.setABS(0)
+end
+if car.tractionControlModes == 0 then
+  ac.setTC(0)
+end
 
 ac.onOnlineWelcome(function(message, config)
   for index, value in config:iterate("ASSISTPEN") do
