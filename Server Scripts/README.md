@@ -126,7 +126,7 @@ SEC_PER_UPDATE=0.5 ;Performance is mildly worse than I expected so turn this up 
 
 ## Assist Penalties
 basically just the same system from LMU. Should be used with TC and ABS forced on. 
-If a penalty is enabled (not 0,0), then lock user to above/below assist level 1, and apply penalty. Can be set per car.  
+If a penalty is enabled (not 0,0), then lock user to above/below assist level 1, and apply penalty if above 0. Can be set per car.  
 ```ini
 [SCRIPT_...] 
 SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/assistPenalties.lua"
