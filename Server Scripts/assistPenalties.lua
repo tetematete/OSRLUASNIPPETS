@@ -43,7 +43,7 @@ ac.onOnlineWelcome(function(message, config)
     ac.log("No abs penalty set")
   else
     lockABS = true
-    if carPenalties["ABS_RES_BAL"][3] >= 0 then
+    if carPenalties["ABS_RES_BAL"][3] ~= nil then
       ac.setABS(carPenalties["ABS_RES_BAL"][3])
     end
   end
@@ -52,7 +52,7 @@ ac.onOnlineWelcome(function(message, config)
     ac.log("No TC penalty set")
   else
     lockTC = true
-    if carPenalties["TC_RES_BAL"][3] >= 0 then
+    if carPenalties["TC_RES_BAL"][3] ~= nil then
       ac.setTC(carPenalties["TC_RES_BAL"][3])
     end
   end
