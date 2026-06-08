@@ -1,4 +1,4 @@
-ac.debug("!version", "assistPenalties v1.0")
+ac.debug("!version", "assistPenalties v1.1")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -26,16 +26,16 @@ local carPenalties
 
 ac.onOnlineWelcome(function(message, config)
   for index, value in config:iterate("ASSISTPEN") do
-    local parsedSection = JSON.stringify(config:mapSection(value, {ABS_RES_BAL = { 0, 0, -1 }, TC_RES_BAL = { 0, 0, -1 } }))
+    local parsedSection = JSON.stringify(config:mapSection(value, {ABS_RES_BAL = { 0, 0, -1 }, TC_RES_BAL = { 0, 0, -1 } })) --parse each section. json.stringify to fix a circular reference error that i am too stupid to understand
     local parsedCars = config:mapSection(value, {CAR_FOLDER={"other"}})
 
-    for index2, value2 in pairs(parsedCars["CAR_FOLDER"]) do
+    for index2, value2 in pairs(parsedCars["CAR_FOLDER"]) do --add the car folder as keys to the penalty data to make some stuff later simpler
       penaltiesTable[value2] = JSON.parse(parsedSection)
     end
   end
 
   local carID = ac.getCarID(0)
-  if penaltiesTable[carID] == nil then carID = "other" end
+  if penaltiesTable[carID] == nil then carID = "other" end 
 
   carPenalties = penaltiesTable[carID]
 
@@ -44,7 +44,9 @@ ac.onOnlineWelcome(function(message, config)
   else
     lockABS = true
     if carPenalties["ABS_RES_BAL"][3] ~= nil then
+    if carPenalties["ABS_RES_BAL"][3] ~= -1 then
       ac.setABS(carPenalties["ABS_RES_BAL"][3])
+    end
     end
   end
 
@@ -53,7 +55,9 @@ ac.onOnlineWelcome(function(message, config)
   else
     lockTC = true
     if carPenalties["TC_RES_BAL"][3] ~= nil then
+    if carPenalties["TC_RES_BAL"][3] ~= -1 then
       ac.setTC(carPenalties["TC_RES_BAL"][3])
+    end
     end
   end
 
