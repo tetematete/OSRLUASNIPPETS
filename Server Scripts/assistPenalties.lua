@@ -1,4 +1,10 @@
-ac.debug("!version", "assistPenalties v0.5")
+ac.debug("!version", "assistPenalties v0.6")
+
+--If you intend to modify this script, leave these in. 
+ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
+ac.debug("Credit", "original script by tetematete, co-owner of OSR. \nTo race with us, support us, or find more scripts like this one,\n follow the link below.")
+--I mean it :)
+
 local sim = ac.getSim()
 local car = ac.getCar(0)
 local scriptReady = false
@@ -6,11 +12,18 @@ local penaltiesTable = {}
 
 local initialBallast = car.ballast
 local initialRestrictor = car.restrictor
+ac.log("Initial Ballast, Restrictor: " .. initialBallast .. " " .. initialRestrictor)
+local absUp = ac.ControlButton("ABSUP")
+local absDn = ac.ControlButton("ABSDN")
+local tcUp = ac.ControlButton("TCUP")
+local tcDn = ac.ControlButton("TCDN")
 
 local lockABS = false
 local lockTC = false
 local chosenABS = 0
 local chosenTC = 0
+ac.setABS(0)
+ac.setTC(0)
 
 ac.onOnlineWelcome(function(message, config)
   for index, value in config:iterate("ASSISTPEN") do
@@ -23,7 +36,6 @@ ac.onOnlineWelcome(function(message, config)
   end
 
   --ac.log(penaltiesTable)
-  refreshPenalties()
   scriptReady = true
 end)
 
@@ -43,14 +55,15 @@ function refreshPenalties()
     lockTC = true
   end
 
-    physics.setCarRestrictor(0, initialRestrictor + tonumber(carPenalties["TC_RES_BAL"][1]) + tonumber(carPenalties["ABS_RES_BAL"][1]))
-    physics.setCarBallast(0, initialBallast + tonumber(carPenalties["TC_RES_BAL"][2]) + tonumber(carPenalties["ABS_RES_BAL"][2]))
+    physics.setCarRestrictor(0, initialRestrictor + ((chosenTC ~= 0 and lockTC) and tonumber(carPenalties["TC_RES_BAL"][1]) or 0) + ((chosenABS ~= 0 and lockABS) and tonumber(carPenalties["ABS_RES_BAL"][1]) or 0))
+    physics.setCarBallast(0, initialBallast + ((chosenTC ~= 0 and lockTC) and tonumber(carPenalties["TC_RES_BAL"][2]) or 0) + ((chosenABS ~= 0 and lockABS) and tonumber(carPenalties["ABS_RES_BAL"][2]) or 0)) 
   ac.log("Penalties Refreshed. TC: " .. (lockTC and "true" or "false") .. " ".. chosenTC )
   ac.log("Penalties Refreshed. ABS: " .. (lockABS and "true" or "false") .. " ".. chosenABS )
 end
 
 
-local wasMenu = false
+local wasMenu = true
+
 function script.update(dt)
   --ac.debug("a", car.restrictor .. " " .. car.ballast)
   --ac.debug("tc", car.tractionControlMode)
@@ -60,21 +73,34 @@ function script.update(dt)
     if sim.isInMainMenu ~= wasMenu then
       refreshPenalties()
     end
-    if not sim.isInMainMenu then
-      if lockTC and car.tractionControlMode ~= chosenTC then
-        ac.setTC(chosenTC)
-        ac.setMessage(nil, nil, nil, 1)
-        ac.setMessage("TC", "TC LOCKED", nil, 5)
-      end
 
-      if lockABS and car.absMode ~= chosenABS then
-        ac.setABS(chosenABS)
-        ac.setMessage(nil, nil, nil, 1)
-        ac.setMessage("TC", "ABS LOCKED", nil, 5)
+    if not sim.isInMainMenu then
+      if lockTC then
+        ac.setTC(chosenTC)
+      end
+      if lockABS then
+      ac.setABS(chosenABS)
       end
     end
-  else
-
   end
   wasMenu = sim.isInMainMenu
 end
+
+function absLockMessage()
+    if lockABS then
+        --ac.setMessage(nil, nil, nil, 1)
+        ac.setMessage("ABS", "ABS LOCKED TO " .. chosenABS, nil, 5)
+    end
+end
+
+function tcLockMessage()
+    if lockTC then
+        --ac.setMessage(nil, nil, nil, 1)
+        ac.setMessage("TC", "TC LOCKED TO " .. chosenTC, nil, 5)
+    end
+end
+
+absUp:onPressed(function () absLockMessage() end)
+absDn:onPressed(function () absLockMessage() end)
+tcUp:onPressed(function () tcLockMessage() end)
+tcDn:onPressed(function () tcLockMessage() end)
