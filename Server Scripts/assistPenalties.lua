@@ -1,4 +1,4 @@
-ac.debug("!version", "assistPenalties v0.9")
+ac.debug("!version", "assistPenalties v1.0")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -26,7 +26,7 @@ local carPenalties
 
 ac.onOnlineWelcome(function(message, config)
   for index, value in config:iterate("ASSISTPEN") do
-    local parsedSection = JSON.stringify(config:mapSection(value, {ABS_RES_BAL = { 0, 0 }, TC_RES_BAL = { 0, 0 } }))
+    local parsedSection = JSON.stringify(config:mapSection(value, {ABS_RES_BAL = { 0, 0, -1 }, TC_RES_BAL = { 0, 0, -1 } }))
     local parsedCars = config:mapSection(value, {CAR_FOLDER={"other"}})
 
     for index2, value2 in pairs(parsedCars["CAR_FOLDER"]) do
@@ -43,14 +43,18 @@ ac.onOnlineWelcome(function(message, config)
     ac.log("No abs penalty set")
   else
     lockABS = true
-    --ac.setABS(0)
+    if carPenalties["ABS_RES_BAL"][3] >= 0 then
+      ac.setABS(carPenalties["ABS_RES_BAL"][3])
+    end
   end
 
   if tonumber(carPenalties["TC_RES_BAL"][1]) == 0 and tonumber(carPenalties["TC_RES_BAL"][2]) == 0 then
     ac.log("No TC penalty set")
   else
     lockTC = true
-    --ac.setTC(0)
+    if carPenalties["TC_RES_BAL"][3] >= 0 then
+      ac.setTC(carPenalties["TC_RES_BAL"][3])
+    end
   end
 
   --ac.log(penaltiesTable)
