@@ -123,3 +123,23 @@ ACTIVE_PQR=0,0,1 ;What session types to activate rubberbanding. P/Q untested.
 ;0,0,1 is disabled in practice, quali; enabled in race
 SEC_PER_UPDATE=0.5 ;Performance is mildly worse than I expected so turn this up if there are issues. 0 runs every frame.
 ```
+
+## Assist Penalties
+basically just the same system from LMU. Should be used with TC and ABS forced on. 
+If a penalty is enabled (not 0,0), then lock user to above/below assist level 1, and apply penalty. Can be set per car.  
+```ini
+[SCRIPT_...] 
+SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/assistPenalties.lua"
+
+[ASSISTPEN_...] ;adding _... should automatically index sections. Add a new section for each per-car(s) set of penalties to apply.
+CAR_FOLDER=ks_car1, ks_car2 ; Folder names of cars this section applies to, separated by comma
+TC_RES_BAL=5,20,0 ;Penalty for TC ON, Restrictor%, BallastKG respectively.
+;Third value is optional, used to set defaults upon loading in. New main menu shows forced assists as disabled on first loading in even when the actual value is like 3, which is obviously a problem when the script makes you live with your decision until you can apply a new setup.
+;Match it with whatever new main menu says default is. 
+ABS_RES_BAL=10,40,0 ;Penalty for ABS ON, Restrictor%, BallastKG respectively.
+
+[ASSISTPEN_...]
+;Omitting car folder acts as "other", applies to all cars not already defined with CAR_FOLDER. If having different penalties is not neccessary, neither is CAR_FOLDER.  
+TC_RES_BAL=0,0 ;omitting key or putting 0,0 means assist should be unlocked. 
+ABS_RES_BAL=10,40 ;This example would be best on a car with factory TC, No factory ABS
+```
