@@ -1,4 +1,4 @@
-ac.debug("!version", "assistPenalties v0.8")
+ac.debug("!version", "assistPenalties v0.9")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -22,14 +22,7 @@ local lockABS = false
 local lockTC = false
 local chosenABS = 0
 local chosenTC = 0
-local absOffset = 0
-local tcOffset = 0
-if car.absModes == 0 then
-  ac.setABS(0)
-end
-if car.tractionControlModes == 0 then
-  ac.setTC(0)
-end
+local carPenalties
 
 ac.onOnlineWelcome(function(message, config)
   for index, value in config:iterate("ASSISTPEN") do
@@ -41,25 +34,31 @@ ac.onOnlineWelcome(function(message, config)
     end
   end
 
+  local carID = ac.getCarID(0)
+  if penaltiesTable[carID] == nil then carID = "other" end
+
+  carPenalties = penaltiesTable[carID]
+
+  if tonumber(carPenalties["ABS_RES_BAL"][1]) == 0 and tonumber(carPenalties["ABS_RES_BAL"][2]) == 0 then
+    ac.log("No abs penalty set")
+  else
+    lockABS = true
+    --ac.setABS(0)
+  end
+
+  if tonumber(carPenalties["TC_RES_BAL"][1]) == 0 and tonumber(carPenalties["TC_RES_BAL"][2]) == 0 then
+    ac.log("No TC penalty set")
+  else
+    lockTC = true
+    --ac.setTC(0)
+  end
+
   --ac.log(penaltiesTable)
   scriptReady = true
 end)
 
 function refreshPenalties()
-  local carID = ac.getCarID(0)
-  if penaltiesTable[carID] == nil then carID = "other" end
-  local carPenalties = penaltiesTable[carID]
   chosenTC, chosenABS = car.tractionControlMode, car.absMode
-  if tonumber(carPenalties["ABS_RES_BAL"][1]) == 0 and tonumber(carPenalties["ABS_RES_BAL"][2]) == 0 then
-    ac.log("No abs penalty set")
-  else
-    lockABS = true
-  end
-  if tonumber(carPenalties["TC_RES_BAL"][1]) == 0 and tonumber(carPenalties["TC_RES_BAL"][2]) == 0 then
-    ac.log("No TC penalty set")
-  else
-    lockTC = true
-  end
 
     physics.setCarRestrictor(0, initialRestrictor + ((chosenTC ~= 0 and lockTC) and tonumber(carPenalties["TC_RES_BAL"][1]) or 0) + ((chosenABS ~= 0 and lockABS) and tonumber(carPenalties["ABS_RES_BAL"][1]) or 0))
     physics.setCarBallast(0, initialBallast + ((chosenTC ~= 0 and lockTC) and tonumber(carPenalties["TC_RES_BAL"][2]) or 0) + ((chosenABS ~= 0 and lockABS) and tonumber(carPenalties["ABS_RES_BAL"][2]) or 0)) 
@@ -92,8 +91,6 @@ function script.frameBegin(dt)
     end
   end
   wasMenu = sim.isInMainMenu
-  absOffset = 0
-  tcOffset = 0
 end
 
 --[[function absLockMessage()
