@@ -1,4 +1,4 @@
-ac.debug("!version", "assistPenalties v0.7")
+ac.debug("!version", "assistPenalties v0.8")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -12,7 +12,7 @@ local penaltiesTable = {}
 
 local initialBallast = car.ballast
 local initialRestrictor = car.restrictor
-ac.log("Initial Ballast, Restrictor: " .. initialBallast .. " " .. initialRestrictor)
+ac.log("Initial Ballast, Restrictor: " .. initialBallast .. "   " .. initialRestrictor)
 local absUp = ac.ControlButton("ABSUP")
 local absDn = ac.ControlButton("ABSDN")
 local tcUp = ac.ControlButton("TCUP")
@@ -22,7 +22,8 @@ local lockABS = false
 local lockTC = false
 local chosenABS = 0
 local chosenTC = 0
-
+local absOffset = 0
+local tcOffset = 0
 if car.absModes == 0 then
   ac.setABS(0)
 end
@@ -66,46 +67,50 @@ function refreshPenalties()
   ac.log("Penalties Refreshed. ABS: " .. (lockABS and "true" or "false") .. " ".. chosenABS )
 end
 
-
 local wasMenu = true
 
-function script.update(dt)
+function script.frameBegin(dt)
   --ac.debug("a", car.restrictor .. " " .. car.ballast)
   --ac.debug("tc", car.tractionControlMode)
   --ac.debug("abs", car.absMode)
 
   if scriptReady then
-    if sim.isInMainMenu ~= wasMenu then
+    if not sim.isInMainMenu and wasMenu  then
       refreshPenalties()
     end
-
+    if sim.isInMainMenu and not wasMenu then
+      physics.setCarRestrictor(0, initialRestrictor)
+      physics.setCarBallast(0, initialBallast)
+    end
     if not sim.isInMainMenu then
       if lockTC then
-        ac.setTC(chosenTC)
+        ac.setTC((chosenTC>=1) and math.max(car.tractionControlMode, 1) or 0)
       end
       if lockABS then
-      ac.setABS(chosenABS)
+      ac.setABS((chosenABS>=1) and math.max(car.absMode, 1) or 0)
       end
     end
   end
   wasMenu = sim.isInMainMenu
+  absOffset = 0
+  tcOffset = 0
 end
 
-function absLockMessage()
+--[[function absLockMessage()
     if lockABS then
         --ac.setMessage(nil, nil, nil, 1)
-        ac.setMessage("ABS", "ABS LOCKED TO " .. chosenABS, nil, 5)
+        --ac.setMessage("ABS", "ABS LOCKED TO " .. chosenABS, nil, 5)
     end
 end
 
 function tcLockMessage()
     if lockTC then
         --ac.setMessage(nil, nil, nil, 1)
-        ac.setMessage("TC", "TC LOCKED TO " .. chosenTC, nil, 5)
+        --ac.setMessage("TC", "TC LOCKED TO " .. chosenTC, nil, 5)
     end
 end
 
-absUp:onPressed(function () absLockMessage() end)
+absUp:onPressed(function () absLockMessage()  end)
 absDn:onPressed(function () absLockMessage() end)
 tcUp:onPressed(function () tcLockMessage() end)
-tcDn:onPressed(function () tcLockMessage() end)
+tcDn:onPressed(function () tcLockMessage() end)]]
