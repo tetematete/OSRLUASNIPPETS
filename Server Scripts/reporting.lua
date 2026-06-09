@@ -1,4 +1,4 @@
-ac.debug("!version", "reporting v0.6")
+ac.debug("!version", "reporting v0.7")
 local sim = ac.getSim()
 local timestamp = 0
 local sessionStartTime = 0
@@ -8,6 +8,7 @@ local cooldown = 5
 local timeout = 0
 local reportStore = ac.storage {
   pos = vec2(300, 300),
+  hidden = false
 }
 local flagDragging = false
 local flagStartPos = vec2(0, 0)
@@ -33,9 +34,15 @@ end)
 function script.drawUI()
   local dt = ac.getDeltaT()
 
-  ui.transparentWindow("ReportWindow", reportStore.pos, vec2(200, 100), false, true, function()
+  ui.transparentWindow("ReportWindow", reportStore.pos, vec2(200, 125), true, true, function()
+    if not reportStore.hidden then
     if reportBind:control(vec2(150, 50), ui.ControlButtonControlFlags.SingleEntry, "Click to bind \nreport button") then
       reportBind:boundTo()
+    end
+  end
+    ui.sameLine(175)
+    if ui.iconButton(reportStore.hidden and ui.Icons.UpAlt or ui.Icons.DownAlt, vec2(25,25)) then
+      reportStore.hidden = not reportStore.hidden
     end
     ui.pushFont(ui.Font.Title)
 
@@ -48,7 +55,7 @@ function script.drawUI()
     if reports >= 0 then
       ui.text("Report Sent!")
     else
-      ui.text("No Reports Remaining For This Lap")
+      ui.text("No Reports Remaining\nFor This Lap")
     end
 
     if ui.windowHovered(ui.HoveredFlags.RectOnly) then
