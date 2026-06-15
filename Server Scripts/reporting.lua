@@ -1,11 +1,11 @@
-ac.debug("!version", "reporting v0.7")
+ac.debug("!version", "reporting v0.8")
 local sim = ac.getSim()
 local timestamp = 0
 local sessionStartTime = 0
 local session = ac.getSession(sim.currentSessionIndex)
 local fadeTimer = 0
 local cooldown = 5
-local timeout = 0
+local timer = 1
 local reportStore = ac.storage {
   pos = vec2(300, 300),
   hidden = false
@@ -14,7 +14,7 @@ local flagDragging = false
 local flagStartPos = vec2(0, 0)
 local reportBind = ac.ControlButton("reportBinding")
 local reportLimit = 2
-local reports
+local reports = 2 
 
 if not sim.isReplayActive then
   ac.writeReplayBlob("TimestampSessionStart", os.time() - sim.currentSessionTime / 1000)
@@ -26,10 +26,24 @@ ac.onOnlineWelcome(function (message, config)
   local SECTION = "REPORTING"
   reportLimit = config:get(SECTION, "LIMIT_PER_LAP", 2, 1)
   cooldown = config:get(SECTION, "COOLDOWN", 5, 1)
-
   reports = reportLimit
 end)
 
+function script.update(dt)
+  if timer > 0 then
+    timer = timer - dt
+  elseif timer <= 0 and timer > -1 then
+    if not sim.isReplayActive then
+      ac.writeReplayBlob("TimestampSessionStart", os.time() + sim.timeToSessionStart / 1000)
+      ac.log("Session start time written as: " .. os.dateGlobal("%d %H:%M:%S", os.time() + sim.timeToSessionStart / 1000) .. " currentSessionTime:" .. sim.currentSessionTime)
+    else
+      sessionStartTime = ac.readReplayBlob("TimestampSessionStart") or 0
+      ac.log(sessionStartTime)
+      ac.log(os.dateGlobal("%d %H:%M:%S", sessionStartTime))
+    end
+    timer = -2
+  end
+end
 
 function script.drawUI()
   local dt = ac.getDeltaT()
@@ -92,6 +106,7 @@ end)
 
 ac.onSessionStart(function(sessionIndex, restarted)
   reports = reportLimit
+  timer = 1
 end)
 
 report = ac.OnlineEvent({ ac.StructItem.key("AwesomeReportKey"), balls=ac.StructItem.boolean()}, function(sender, message) end)
