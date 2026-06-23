@@ -43,6 +43,7 @@ end, function ()
     if ui.button("Save and Copy Path") then
         finalPlate:save(filepath .. "\\numplate_"..num..".png", ac.ImageFormat.PNG)
         clicked = true
+        ac.setClipboardText(filepath .. "\\numplate_"..num..".png")
     end
     if io.fileExists(filepath .. "\\numplate_"..num..".png") then
         ui.text("File saved to: " .. filepath .. "\\numplate_"..num..".png")
@@ -63,7 +64,7 @@ end, function ()
             end
         end]]
         if clicked then
-            ac.setClipboardText(filepath .. "\\numplate_"..num..".png")
+            
         ui.text("Path Copied To Clipboard")
         end
     end
