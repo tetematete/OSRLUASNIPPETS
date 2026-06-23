@@ -30,7 +30,7 @@ end, function ()
 
     finalPlate:clear()
     finalPlate:update(function (dt)
-        ui.pushDWriteFont('Segoe UI;Weight=Black')
+        ui.pushDWriteFont('Segoe UI:@System;Weight=Black')
         ui.drawImage(classPlates[class[selClass]].canvas, vec2(0,0), vec2(1000,1000))
         ui.beginScale()
         ui.dwriteTextAligned(num, 250, ui.Alignment.Center, ui.Alignment.Center, vec2(1000,975), false, rgbm.colors.black)
