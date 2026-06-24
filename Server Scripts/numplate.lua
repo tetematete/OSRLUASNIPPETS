@@ -1,7 +1,7 @@
 ac.debug("!version", "thing v0.2")
 local finalPlate = ui.ExtraCanvas(1000, 1, render.AntialiasingMode.None)
 local num = "000"
-local filepath = ac.getFolder(ac.FolderID.Screenshots)
+local filepath = ac.getFolder(ac.FolderID.ScriptOrigin)
 ac.log(filepath)
 local clicked = false
 local class = {"GT4","LMP3"}
