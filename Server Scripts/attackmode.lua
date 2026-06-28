@@ -26,7 +26,7 @@ local chevron = ui.ExtraCanvas(500, 1):setName("chev"):update(function(dt)
 end)
 
 local encoded = chevron:encode()
-local hitbox = 1
+local hitbox = 2
 local offset = 0
 local size = 1
 local dist = 1
@@ -75,7 +75,7 @@ ac.onOnlineWelcome(function(message, config)
         local pos = config:get("ATTACKMODE", key, vec3())
         table.insert(spl, { pos = pos, helper = render.PositioningHelper({ skipAxis = { 'y' } }), collected=false })
     end
-    hitbox = config:get("ATTACKMODE", "HITBOX", 1)
+    hitbox = config:get("ATTACKMODE", "HITBOX", 2)
     offset = config:get("ATTACKMODE", "OFFSET", 0)
     size = config:get("ATTACKMODE", "SIZE", 1)
     dist = config:get("ATTACKMODE", "SIZE", 1)
