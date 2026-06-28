@@ -1,5 +1,5 @@
 local cubic = require('shared/math/cubic')
-ac.debug("!version", "attackmode v1")
+ac.debug("!version", "attackmode v1.1")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -15,6 +15,7 @@ ac.setKERS(false)
 local paint = ac.TrackPaint()
 local showDebug  
 local chevron = ui.ExtraCanvas(500, 1):setName("chev"):update(function(dt)
+
     ui.pathLineTo(vec2(250, 250))
     ui.pathLineTo(vec2(500, 400))
     ui.pathLineTo(vec2(500, 250))
@@ -26,29 +27,36 @@ local chevron = ui.ExtraCanvas(500, 1):setName("chev"):update(function(dt)
 end)
 
 local encoded = chevron:encode()
-local hitbox = 1
+local hitbox = 2
 local offset = 0
 local size = 1
 local dist = 1
+local age = 0.5
 local spl = {}
+local noVisuals = false
+local arrowColor = rgbm(0.4, 0.8, 1, 1)
 local active = false
 local tempConfig 
 
 local function makePaint()
-    paint:reset()
-    local tab = {}
-    for index, value in ipairs(spl) do
-        table.insert(tab, spl[index].pos)
-    end
-    --ac.debug("points", tab)
-    local pts = cubic.vec(tab)
+    
+        paint:reset()
+    if not noVisuals then
+        paint:age(age)
+        local tab = {}
+        for index, value in ipairs(spl) do
+            table.insert(tab, spl[index].pos)
+        end
+        --ac.debug("points", tab)
+        local pts = cubic.vec(tab)
 
-    for i = 0, 1, (3*dist) / pts.length() do
-        local degree = ac.getCompassAngle(pts.get(i) - pts.get(i + 0.001))
-        --ac.log(degree)
+        for i = 0, 1, (3 * dist) / pts.length() do
+            local degree = ac.getCompassAngle(pts.get(i) - pts.get(i + 0.001))
+            --ac.log(degree)
 
-        --paint:arrow(pts.get(i), vec2(1,1), degree+90)
-        paint:image(ui.decodeImage(encoded), pts.get(i), 5*size, degree + 90, rgbm(0.4, 0.8, 1, 1))
+            --paint:arrow(pts.get(i), vec2(1,1), degree+90)
+            paint:image(ui.decodeImage(encoded), pts.get(i), 5 * size, degree + 90, arrowColor)
+        end
     end
 end
 
@@ -75,11 +83,13 @@ ac.onOnlineWelcome(function(message, config)
         local pos = config:get("ATTACKMODE", key, vec3())
         table.insert(spl, { pos = pos, helper = render.PositioningHelper({ skipAxis = { 'y' } }), collected=false })
     end
-    hitbox = config:get("ATTACKMODE", "HITBOX", 1)
+    hitbox = config:get("ATTACKMODE", "HITBOX", 2)
     offset = config:get("ATTACKMODE", "OFFSET", 0)
     size = config:get("ATTACKMODE", "SIZE", 1)
-    dist = config:get("ATTACKMODE", "SIZE", 1)
-    
+    dist = config:get("ATTACKMODE", "DIST", 1)
+    age = config:get("ATTACKMODE", "AGE", 0.5)
+    arrowColor = config:get("ATTACKMODE", "COLOR", rgbm(0.4, 0.8, 1, 1))
+    --noVisuals = config:get("ATTACKMODE", "NO_VISUALS", 0) == 1
     --ac.log(config:serialize())
     if #spl > 3 then
         makePaint()
@@ -95,15 +105,18 @@ end)
 --          Spline Creation and Export Tool
 --==============================================================================
 ui.registerOnlineExtra(ui.Icons.Pitlane, "attackMode", nil, function()
-    local offtrue, hittrue, sizetrue, disttrue = false, false, false, false
+    local offtrue, hittrue, sizetrue, disttrue, agetrue = false, false, false, false, false
     showDebug = true
     active = true
     --offset, offtrue = ui.slider("offset", offset, -1, 1)
+    ui.columns(2, true, "Columntest")
+    
+  --if ui.checkbox("No Visuals", noVisuals) then noVisuals = not noVisuals makePaint() end
     hitbox, hittrue = ui.slider("hitbox", hitbox, 0.5, 3)
     size, sizetrue = ui.slider("size", size, 0.5, 3)
     dist,disttrue = ui.slider("dist", dist, 0.5, 3)
-
-    if sizetrue or disttrue then
+    age, agetrue = ui.slider("age", age, 0, 1)
+    if sizetrue or disttrue or agetrue then
         makePaint()
     end
     if ui.hotkeyShift() and ui.mouseClicked(ui.MouseButton.Left) then
@@ -117,16 +130,19 @@ ui.registerOnlineExtra(ui.Icons.Pitlane, "attackMode", nil, function()
             end
         end
     end
-
+    
     if ui.button("Export Current") then
         local config = ac.INIConfig(ac.INIFormat.Extended, {ATTACKMODE={}})
         for index, value in ipairs(spl) do
             config:set("ATTACKMODE", "POINT_" .. index-1, value.pos)
         end
         config:set("ATTACKMODE", "HITBOX", hitbox)
+        --config:set("ATTACKMODE", "NO_VISUALS", noVisuals)
         --config:set("ATTACKMODE", "OFFSET", offset)
+        config:set("ATTACKMODE","COLOR", arrowColor)
         config:set("ATTACKMODE", "SIZE", size)
         config:set("ATTACKMODE", "DIST", dist)
+        config:set("ATTACKMODE", "AGE", age)
         ac.log(config:serialize())
         ac.setClipboardText(config:serialize())
         tempConfig = config:serialize()
@@ -143,16 +159,21 @@ ui.registerOnlineExtra(ui.Icons.Pitlane, "attackMode", nil, function()
             makePaint()
         end
     end
-
+    
 
     if #spl > 3 then
     else
         ui.text("4 Points Required, shift + click to add a point")
     end
+ui.nextColumn()
+if ui.colorPicker("Arrow Color", arrowColor, ui.ColorPickerFlags.AlphaBar) then makePaint() end
+
+    ui.nextColumn()
+    ui.columns(1)
     ui.separator()
 
     if tempConfig ~= nil then 
-        ui.inputText("CONFIG", tempConfig, ui.InputTextFlags.None, ui.availableSpace())
+        ui.inputText("##CONFIG", tempConfig, ui.InputTextFlags.None, ui.availableSpace())
     end
 
 end, function (okClicked)
