@@ -1,7 +1,8 @@
-ac.debug("!version", "thing v0.1")
+ac.debug("!version", "thing v0.3")
 local finalPlate = ui.ExtraCanvas(1000, 1, render.AntialiasingMode.None)
 local num = "000"
-local filepath = ac.getFolder(ac.FolderID.Screenshots)
+local filepath = ac.getFolder(ac.FolderID.ScriptOrigin)
+ac.log(filepath)
 local clicked = false
 local class = {"GT4","LMP3"}
 local classPlates = 
@@ -30,7 +31,7 @@ end, function ()
 
     finalPlate:clear()
     finalPlate:update(function (dt)
-        ui.pushDWriteFont('Segoe UI;Weight=Black')
+        ui.pushDWriteFont('Segoe UI:@System;Weight=Black')
         ui.drawImage(classPlates[class[selClass]].canvas, vec2(0,0), vec2(1000,1000))
         ui.beginScale()
         ui.dwriteTextAligned(num, 250, ui.Alignment.Center, ui.Alignment.Center, vec2(1000,975), false, rgbm.colors.black)
