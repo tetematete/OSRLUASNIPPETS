@@ -151,6 +151,8 @@ Attack mode! This implements the attack mode from formula E into the game, and i
 
 Easily add attack mode arrows that activate p2p upon driving through them. Server scripts can't directly disallow KERS, only disable the button input, so if KERS is activated externally, like via an app, when its not allowed, the driver's clutch will be locked to 50% for the duration of the attack mode as punishment.
 
+When adjusting the hitbox, keep in mind the car's "hitbox" is a single point at the center of the car, so set it generously.
+
 I'll let this demo video do the rest of the explaining :)
 https://youtu.be/dSbHR5Fc_Mg
 
