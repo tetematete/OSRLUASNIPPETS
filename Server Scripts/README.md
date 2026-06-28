@@ -1,6 +1,6 @@
 # Server Scripts
 Server Scripts run on each client individually, and don't require any additional download. To use in your server, simply put the config into your CSP extra options box. The Scripts are made and tested mostly on [CSP](https://acstuff.club/patch/) version 3676 (0.3.0-preview140). 
-They should be fine on most earlier versions, and I will likely update for compatibility as far back as 3334. [CSP Online Script Wiki](https://github.com/ac-custom-shaders-patch/acc-extension-config/wiki/Misc-%E2%80%93-Server-extra-options#online-scripts)
+They should be fine on most earlier versions, and I will likely update for compatibility as far back as 3465. [CSP Online Script Wiki](https://github.com/ac-custom-shaders-patch/acc-extension-config/wiki/Misc-%E2%80%93-Server-extra-options#online-scripts)
 
 Extra Options Can be found here using CM server:
 
