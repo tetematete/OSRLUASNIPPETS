@@ -36,10 +36,10 @@ else
 end
 
 
-local windowWidth, windowHeight = ac.getSim().windowWidth, ac.getSim().windowHeight
+local windowWidth, windowHeight = ac.getSim().windowWidth/ac.getUI().uiScale, ac.getSim().windowHeight/ac.getUI().uiScale
 local lightWidth, lightHeight = ui.imageSize(light):unpack()
 local lightCenter = vec2((lightWidth / 2), (lightHeight / 2))
-local lightArrayStart = (windowWidth / 2) - (lightWidth * 2) - lightWidth / 2
+local lightArrayStart = ((windowWidth / 2) - (lightWidth * 2) - lightWidth / 2)
 local lightState = {}
 for i = 1, lightCount, 1 do
     lightState[i] = rgbm.colors.gray
@@ -136,7 +136,7 @@ ac.onSessionStart(function()
     overrideTimer = 1
 end)
 
-ac.debug("!version", "startLights v0.8")
+ac.debug("!version", "startLights v0.9")
 
 function script.update(dt)
     if overrideTimer > 0 then
@@ -155,10 +155,10 @@ function script.update(dt)
     end
     --ac.debug("t", overrideTimer )
     --ac.debug("c",car.speedKmh)
-    --ac.debug("d", startTime + delayTime - sim.currentSessionTime)
-    --ac.debug("b", (sim.currentSessionTime) )
+    --ac.debug("time to start", startTime + delayTime - sim.currentSessionTime)
+    --ac.debug("b", (seqDuration + delayTime - gracePeriod) )
 
-    if startTime + delayTime - sim.currentSessionTime < startTime + delayTime - gracePeriod and startTime + delayTime - sim.currentSessionTime > -5000 and not started then
+    if startTime + delayTime - sim.currentSessionTime < seqDuration + delayTime - gracePeriod - seqStartTime and startTime + delayTime - sim.currentSessionTime > -5000 and not started then
         if car.speedKmh > 0.5 then
             started = true
             if startTime + delayTime - sim.currentSessionTime > 0 then
@@ -209,9 +209,10 @@ ac.onResolutionChange(function()
     windowWidth, windowHeight = ac.getSim().windowWidth, ac.getSim().windowHeight
     lightWidth, lightHeight = ui.imageSize(light):unpack()
     lightCenter = vec2((lightWidth / 2), (lightHeight / 2))
-    lightArrayStart = (windowWidth / 2) - (lightWidth * 2) - lightWidth / 2
+    lightArrayStart =( (windowWidth / 2) - (lightWidth * 2) - lightWidth / 2)
+    
 end)
-
+ac.log(ac.getUI().uiScale)
 function script.drawUI() --Draws a shitty UI for it.
     --ac.debug("path", texFilePath .. "texture_trafficlight_off.png")
     --ac.debug("size", "x:" .. windowWidth .. " y:" .. windowHeight)
