@@ -1,5 +1,5 @@
 local cubic = require('shared/math/cubic')
-ac.debug("!version", "attackmode v1.1")
+ac.debug("!version", "attackmode v1.2")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -37,6 +37,7 @@ local noVisuals = false
 local arrowColor = rgbm(0.4, 0.8, 1, 1)
 local active = false
 local tempConfig 
+local rotation = 90
 
 local function makePaint()
     
@@ -55,7 +56,7 @@ local function makePaint()
             --ac.log(degree)
 
             --paint:arrow(pts.get(i), vec2(1,1), degree+90)
-            paint:image(ui.decodeImage(encoded), pts.get(i), 5 * size, degree + 90, arrowColor)
+            paint:image(ui.decodeImage(encoded), pts.get(i), 5 * size, degree + rotation, arrowColor)
         end
     end
 end
@@ -88,6 +89,7 @@ ac.onOnlineWelcome(function(message, config)
     size = config:get("ATTACKMODE", "SIZE", 1)
     dist = config:get("ATTACKMODE", "DIST", 1)
     age = config:get("ATTACKMODE", "AGE", 0.5)
+    rotation = config:get("ATTACKMODE", "ROTATION", 90)
     arrowColor = config:get("ATTACKMODE", "COLOR", rgbm(0.4, 0.8, 1, 1))
     --noVisuals = config:get("ATTACKMODE", "NO_VISUALS", 0) == 1
     --ac.log(config:serialize())
@@ -105,7 +107,7 @@ end)
 --          Spline Creation and Export Tool
 --==============================================================================
 ui.registerOnlineExtra(ui.Icons.Pitlane, "attackMode", nil, function()
-    local offtrue, hittrue, sizetrue, disttrue, agetrue = false, false, false, false, false
+    local offtrue, hittrue, sizetrue, disttrue, agetrue,rotationtrue = false, false, false, false, false, false
     showDebug = true
     active = true
     --offset, offtrue = ui.slider("offset", offset, -1, 1)
@@ -114,9 +116,10 @@ ui.registerOnlineExtra(ui.Icons.Pitlane, "attackMode", nil, function()
   --if ui.checkbox("No Visuals", noVisuals) then noVisuals = not noVisuals makePaint() end
     hitbox, hittrue = ui.slider("hitbox", hitbox, 0.5, 3)
     size, sizetrue = ui.slider("size", size, 0.5, 3)
-    dist,disttrue = ui.slider("dist", dist, 0.5, 3)
+    dist, disttrue = ui.slider("dist", dist, 0.01, 3)
     age, agetrue = ui.slider("age", age, 0, 1)
-    if sizetrue or disttrue or agetrue then
+    rotation, rotationtrue = ui.slider("rotation", rotation, 0, 360)
+    if sizetrue or disttrue or agetrue or rotationtrue then
         makePaint()
     end
     if ui.hotkeyShift() and ui.mouseClicked(ui.MouseButton.Left) then
@@ -143,6 +146,7 @@ ui.registerOnlineExtra(ui.Icons.Pitlane, "attackMode", nil, function()
         config:set("ATTACKMODE", "SIZE", size)
         config:set("ATTACKMODE", "DIST", dist)
         config:set("ATTACKMODE", "AGE", age)
+        config:set("ATTACKMODE", "ROTATION", rotation)
         ac.log(config:serialize())
         ac.setClipboardText(config:serialize())
         tempConfig = config:serialize()
