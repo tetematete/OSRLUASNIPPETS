@@ -214,7 +214,7 @@ end
 -- Script Constant update Logic
 --==============================================================================
 local collectedPoints = 0
-local permittedUses = 3
+local permittedUses = car.p2pActivations
 function script.update(dt)
 --ac.debug("a", car.p2pStatus)
     if active and not (#spl == 0) then
