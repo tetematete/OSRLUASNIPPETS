@@ -6,7 +6,7 @@ local stor = ac.storage{
     t = 5
 }
 
-ac.debug("!version", "woeFCYuponye v1.0")
+ac.debug("!version", "woeFCYuponye v1.1")
 
 ui.registerOnlineExtra(ui.Icons.AppWindow, "FCY", nil, function ()
     stor.t = ui.slider("Deploy/Lift Time", stor.t, 0, 20, '%.0f sec')
@@ -52,14 +52,14 @@ time=ac.StructItem.uint8()
     setInterval(function()
         if timer > 0 then
         if FCY then
-            ac.setMessage("FCY", "FCY DEPOYED IN " .. timer, nil, 5)
+            ac.setMessage("FCY", "FCY DEPLOYED IN " .. timer, nil, 5)
         else
             ac.setMessage("FCY", "FCY LIFTED IN " .. timer, nil, 5)
         end
         timer = timer - 1
     else
             if FCY then
-                ac.setMessage("FCY", "FCY DEPOYED", nil, 5)
+                ac.setMessage("FCY", "FCY DEPLOYED", nil, 5)
             else
                 ac.setMessage("FCY", "FCY LIFTED", nil, 5)
             end
@@ -83,7 +83,7 @@ function script.update(dt)
         end
     elseif car.speedKmh > 80 and force then
         if not car.manualPitsSpeedLimiterEnabled then
-        physics.forceUserThrottleFor(0.01, 0)    
+        physics.forceUserThrottleFor(0.001, 0)    
         end
     end
     
