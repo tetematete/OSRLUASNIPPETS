@@ -1,6 +1,6 @@
 # Server Scripts
 Server Scripts run on each client individually, and don't require any additional download. To use in your server, simply put the config into your CSP extra options box. The Scripts are made and tested mostly on [CSP](https://acstuff.club/patch/) version 3676 (0.3.0-preview140). 
-They should be fine on most earlier versions, and I will likely update for compatibility as far back as 3334. [CSP Online Script Wiki](https://github.com/ac-custom-shaders-patch/acc-extension-config/wiki/Misc-%E2%80%93-Server-extra-options#online-scripts)
+They should be fine on most earlier versions, and I will likely update for compatibility as far back as 3465. [CSP Online Script Wiki](https://github.com/ac-custom-shaders-patch/acc-extension-config/wiki/Misc-%E2%80%93-Server-extra-options#online-scripts)
 
 Extra Options Can be found here using CM server:
 
@@ -145,3 +145,26 @@ ABS_RES_BAL=10,40,0 ;Penalty for ABS ON, Restrictor%, BallastKG respectively.
 TC_RES_BAL=0,0 ;omitting key or putting 0,0 means assist should be unlocked. 
 ABS_RES_BAL=10,40 ;This example would be best on a car with factory TC, No factory ABS
 ```
+
+## Attackmode
+Attack mode! This implements the attack mode from formula E into the game, and is, at the moment, hardcoded for use with the VRC CSP Formula Lithium. It wouldnt be hard to add functionality for all p2p cars but i just need someone to give me a reason lmao.
+
+Easily add attack mode arrows that activate p2p upon driving through them. Server scripts can't directly disallow KERS, only disable the button input, so if KERS is activated externally, like via an app, when its not allowed, the driver's clutch will be locked to 50% for the duration of the attack mode as punishment.
+
+When adjusting the hitbox, keep in mind the car's "hitbox" is a single point at the center of the car, so set it generously.
+
+I'll let this demo video do the rest of the explaining :)
+https://youtu.be/dSbHR5Fc_Mg
+
+```ini
+[SCRIPT_...]
+SCRIPT = "https://raw.githubusercontent.com/tetematete/OSRLUASNIPPETS/refs/heads/main/Server%20Scripts/attackmode.lua"
+
+[ATTACKMODE]
+SIZE=1 ;Don't try to set these manually
+HITBOX=2 ;The script comes with a tool
+DIST=1 ;You need to join the server as admin to access it
+POINT_0=1,1,1 ;settting these manually is stupid
+```
+
+
