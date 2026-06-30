@@ -1,5 +1,5 @@
 local cubic = require('shared/math/cubic')
-ac.debug("!version", "attackmode v1.2")
+ac.debug("!version", "attackmode v1.3")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -228,6 +228,7 @@ function script.update(dt)
         end
 
         if car.p2pActivations < permittedUses and car.p2pStatus == 3 then --anticheat system, if a user has an external app to turn on push to pass when it is not permitted, force clutch to negate power gain
+        ac.log(permittedUses .. car.p2pActivations)
             physics.forceUserClutchFor(60, 0.4)
             permittedUses = permittedUses - 1
         end
@@ -253,6 +254,7 @@ function reset() --reset function,
         --kersbutton:setDisabled(true)
     end]]
     end, 1, "reset")
+    ac.log(permittedUses .. car.p2pActivations)
     physics.forceUserClutchFor(0,1) --Disables any clutch forcing
 end
 
@@ -276,7 +278,9 @@ end
 
 function allCollected()   
     if car.p2pStatus == 2 then
+        
         permittedUses = permittedUses - 1
+        ac.log(permittedUses .. car.p2pActivations)
         setTimeout(function()
             ac.setKERS(true)
         end, 1, "kersEnable")
