@@ -1,11 +1,12 @@
 local sim = ac.getSim()
 local fcyToggle = ac.ControlButton("FCYTOGGLE")
 local FCY = false
-
 local force = false
 local stor = ac.storage{
     t = 5
 }
+
+ac.debug("!version", "woeFCYuponye v1.0")
 
 ui.registerOnlineExtra(ui.Icons.AppWindow, "FCY", nil, function ()
     stor.t = ui.slider("Deploy/Lift Time", stor.t, 0, 20, '%.0f sec')
@@ -73,6 +74,7 @@ end, ac.SharedNamespace.ServerScript)
 
 local wasstop = false
 local wasforce = false
+local wasFCY = false
 function script.update(dt)
     local stop = false
     if (car.speedKmh > 85) and force then  
@@ -84,13 +86,15 @@ function script.update(dt)
         physics.forceUserThrottleFor(0.01, 0)    
         end
     end
+    
     if FCY then
-        if not wasforce then
+        if not wasFCY then
         physics.overrideRacingFlag(ac.FlagType.Caution)  
         end
         ac.setTurningLights(ac.TurningLights.Hazards)
     end
-    if not FCY and wasforce then
+
+    if not force and wasforce then
         ac.setTurningLights(ac.TurningLights.None)
         physics.overrideRacingFlag(ac.FlagType.None)  
     end
@@ -102,5 +106,6 @@ function script.update(dt)
         physics.setGentleStop(0, false)
     end
     wasstop = stop
-    wasforce = FCY
+    wasforce = force
+    wasFCY = FCY
 end
