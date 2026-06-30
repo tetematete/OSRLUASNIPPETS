@@ -72,7 +72,7 @@ end, ac.SharedNamespace.ServerScript)
 
 
 local wasstop = false
-
+local wasforce = false
 function script.update(dt)
     local stop = false
     if (car.speedKmh > 85) and force then  
@@ -84,6 +84,16 @@ function script.update(dt)
         physics.forceUserThrottleFor(0.01, 0)    
         end
     end
+    if FCY then
+        if not wasforce then
+        physics.overrideRacingFlag(ac.FlagType.Caution)  
+        end
+        ac.setTurningLights(ac.TurningLights.Hazards)
+    end
+    if not FCY and wasforce then
+        ac.setTurningLights(ac.TurningLights.None)
+        physics.overrideRacingFlag(ac.FlagType.None)  
+    end
 
     if stop and not wasstop then
         physics.setGentleStop(0, true)
@@ -92,4 +102,5 @@ function script.update(dt)
         physics.setGentleStop(0, false)
     end
     wasstop = stop
+    wasforce = FCY
 end
