@@ -83,7 +83,7 @@ function script.update(dt)
         end
     elseif car.speedKmh > 80 and force then
         if not car.manualPitsSpeedLimiterEnabled then
-        physics.forceUserThrottleFor(0.001, 0)    
+        physics.forceUserThrottleFor(dt, 0)    
         end
     end
     
