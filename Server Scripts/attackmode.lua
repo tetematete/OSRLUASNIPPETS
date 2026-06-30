@@ -1,5 +1,5 @@
 local cubic = require('shared/math/cubic')
-ac.debug("!version", "attackmode v1.3")
+ac.debug("!version", "attackmode v1.4")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -96,7 +96,7 @@ ac.onOnlineWelcome(function(message, config)
     if #spl > 3 then
         makePaint()
     end
-    permittedUses = 3
+    permittedUses = car.p2pActivations
     collectedPoints = 0
 
     active = true
@@ -245,6 +245,7 @@ function reset() --reset function,
     ac.setKERS(false)
     setTimeout(function ()
     resetCollected()
+    permittedUses = car.p2pActivations
     --[[local session = ac.getSession(sim.currentSessionIndex)  --This is all commented out because I realized that 1. the kersbutton setdisabled only works once for whatever reason. 2. There isnt even p2p in quali lmao
     if not(session.type == ac.SessionType.Race) then
         active = false
