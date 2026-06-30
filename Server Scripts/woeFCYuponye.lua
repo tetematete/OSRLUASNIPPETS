@@ -75,7 +75,7 @@ local wasstop = false
 
 function script.update(dt)
     local stop = false
-    if (car.speedKmh > 81) and force then  
+    if (car.speedKmh > 85) and force then  
         if physics.getCarInputControls().brake < 0.1 then
         stop = true
         end
