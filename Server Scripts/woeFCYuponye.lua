@@ -8,7 +8,7 @@ local stor = ac.storage{
 local autoslow = false
 local dtLaps = 3
 local adminOnly = true
-ac.debug("!version", "woeFCYuponye v1.3")
+ac.debug("!version", "woeFCYuponye v1.4")
 
 ac.onSessionStart(function (sessionIndex, restarted)
     FCY = false
@@ -107,14 +107,14 @@ function script.update(dt)
                 physics.forceUserThrottleFor(dt, 0)
             end
         end
-    else
+
+
+    end
+    if dtLaps > 0 then
         if car.speedKmh > 80.5 and force then
             physics.setCarPenalty(ac.PenaltyType.MandatoryPits, dtLaps)
         end
-
     end
-
-
 
     if FCY then
         if not wasFCY then
