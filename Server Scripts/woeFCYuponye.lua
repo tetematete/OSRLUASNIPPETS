@@ -5,9 +5,27 @@ local force = false
 local stor = ac.storage{
     t = 5
 }
+local autoslow = false
+local dtLaps = 3
+local adminOnly = true
+ac.debug("!version", "woeFCYuponye v1.3")
 
-ac.debug("!version", "woeFCYuponye v1.1")
+ac.onSessionStart(function (sessionIndex, restarted)
+    FCY = false
+    force = false
+end)
 
+ac.onOnlineWelcome(function (message, config)
+    local sec = "FCY"
+    autoslow = const(config:get(sec, "AUTO_SLOW", false))
+    adminOnly = const(config:get(sec, "ADMIN_ONLY", true))
+    dtLaps = const(config:get(sec, "LAPS_TO_SERVE_DT", 3))
+    local adminFlags
+    if adminOnly then 
+        adminFlags = bit.bor(ui.OnlineExtraFlags.Tool, ui.OnlineExtraFlags.Admin)
+    else
+        adminFlags = ui.OnlineExtraFlags.Tool
+    end
 ui.registerOnlineExtra(ui.Icons.AppWindow, "FCY", nil, function ()
     stor.t = ui.slider("Deploy/Lift Time", stor.t, 0, 20, '%.0f sec')
     if ui.button("TOGGLE FCY") then
@@ -17,7 +35,9 @@ ui.registerOnlineExtra(ui.Icons.AppWindow, "FCY", nil, function ()
     fcyToggle:control(vec2(100,100))
 end, function (okClicked)
     
-end, ui.OnlineExtraFlags.Tool)
+end, adminFlags)
+
+end)
 
 ac.onClientConnected(function (connectedCarIndex, connectedSessionID)
     setTimeout(function ()
@@ -77,16 +97,25 @@ local wasforce = false
 local wasFCY = false
 function script.update(dt)
     local stop = false
-    if (car.speedKmh > 85) and force then  
-        if physics.getCarInputControls().brake < 0.1 then
-        stop = true
+    if autoslow then        
+        if (car.speedKmh > 85) and force then
+            if physics.getCarInputControls().brake < 0.1 then
+                stop = true
+            end
+        elseif car.speedKmh > 79 and force then
+            if not car.manualPitsSpeedLimiterEnabled then
+                physics.forceUserThrottleFor(dt, 0)
+            end
         end
-    elseif car.speedKmh > 80 and force then
-        if not car.manualPitsSpeedLimiterEnabled then
-        physics.forceUserThrottleFor(dt, 0)    
+    else
+        if car.speedKmh > 80.5 and force then
+            physics.setCarPenalty(ac.PenaltyType.MandatoryPits, dtLaps)
         end
+
     end
-    
+
+
+
     if FCY then
         if not wasFCY then
         physics.overrideRacingFlag(ac.FlagType.Caution)  
