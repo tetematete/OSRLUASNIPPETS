@@ -110,7 +110,7 @@ function script.update(dt)
 
         if (car.speedKmh > 85) and force then
         if physics.getCarInputControls().brake < 0.1 then
-                if ac.getCarOptimalBrakingAmount(0) == -1 then
+                if true then --ac.getCarOptimalBrakingAmount(0) == -1 then
                     stop = true
                 else
                     physics.forceUserBrakesFor(0.1, math.max(ac.getCarOptimalBrakingAmount(0), 0.1))
