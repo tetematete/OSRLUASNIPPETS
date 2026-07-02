@@ -29,8 +29,8 @@ ac.onOnlineWelcome(function (message, config)
 ui.registerOnlineExtra(ui.Icons.AppWindow, "FCY", nil, function ()
     stor.t = ui.slider("Deploy/Lift Time", stor.t, 0, 20, '%.0f sec')
     if ui.button("TOGGLE FCY") then
-        FCY = not FCY
-        castStatus({FCY, stor.t, false})
+        
+        castStatus({fcy=(not FCY), time=stor.t, req=false})
     end
     fcyToggle:control(vec2(100,100))
 end, function (okClicked)
@@ -53,8 +53,7 @@ end
 
 fcyToggle:onPressed(function ()
     if (adminOnly and sim.isAdmin) or not adminOnly then
-    FCY = not FCY
-    castStatus({FCY, stor.t, false})
+    castStatus({fcy=(not FCY), time=stor.t, req=false})
     end
 end)
 
@@ -66,29 +65,35 @@ req=ac.StructItem.boolean()
 }, function(sender, message)
     local timer = message.time
 
-    if FCY ~= message.fcy then
-    FCY = message.fcy
-    
-    setInterval(function()
-        if timer > 0 then
-        if FCY then
-            ac.setMessage("FCY", "FCY DEPLOYED IN " .. timer, nil, 5)
-        else
-            ac.setMessage("FCY", "FCY LIFTED IN " .. timer, nil, 5)
-        end
-        timer = timer - 1
+    ac.log(tostring(message.fcy) .. " " .. message.time .. " " .. tostring(message.req))
+    if message.req then
+        comms({ fcy=FCY, time=0, req=false })
     else
-            if FCY then
-                ac.setMessage("FCY", "FCY DEPLOYED", nil, 5)
-            else
-                ac.setMessage("FCY", "FCY LIFTED", nil, 5)
-            end
+        if FCY ~= message.fcy then
+            FCY = message.fcy
 
-            force = FCY
-            return clearInterval
+            setInterval(function()
+                ac.log(timer)
+                if timer > 0 then
+                    if FCY then
+                        ac.setMessage("FCY", "FCY DEPLOYED IN " .. timer, nil, 5)
+                    else
+                        ac.setMessage("FCY", "FCY LIFTED IN " .. timer, nil, 5)
+                    end
+                    timer = timer - 1
+                else
+                    if FCY then
+                        ac.setMessage("FCY", "FCY DEPLOYED", nil, 5)
+                    else
+                        ac.setMessage("FCY", "FCY LIFTED", nil, 5)
+                    end
+
+                    force = FCY
+                    return clearInterval
+                end
+            end, 1, "FCY")
         end
-    end, 1, "FCY")
-end
+    end
 
 end, ac.SharedNamespace.ServerScript)
 
@@ -139,3 +144,5 @@ function script.update(dt)
     wasforce = force
     wasFCY = FCY
 end
+
+castStatus({req=true})
