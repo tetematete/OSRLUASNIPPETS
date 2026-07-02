@@ -30,7 +30,7 @@ ui.registerOnlineExtra(ui.Icons.AppWindow, "FCY", nil, function ()
     stor.t = ui.slider("Deploy/Lift Time", stor.t, 0, 20, '%.0f sec')
     if ui.button("TOGGLE FCY") then
         FCY = not FCY
-        castStatus(FCY, stor.t)
+        castStatus({FCY, stor.t, false})
     end
     fcyToggle:control(vec2(100,100))
 end, function (okClicked)
@@ -39,17 +39,12 @@ end, adminFlags)
 
 end)
 
-ac.onClientConnected(function (connectedCarIndex, connectedSessionID)
-    setTimeout(function ()
-        castStatus(FCY, stor.t)
-    end, 5)
-end)
 
-function castStatus(f,d)
+function castStatus(t)
     math.randomseed(sim.currentSessionTime)
-    if not comms({fcy=f,time=d}) then
+    if not comms(t) then
         setInterval(function ()
-            if comms({fcy=f,time=d}) then
+            if comms(t) then
                 return clearInterval
             end
         end, math.random())
@@ -57,18 +52,23 @@ function castStatus(f,d)
 end
 
 fcyToggle:onPressed(function ()
+    if (adminOnly and sim.isAdmin) or not adminOnly then
     FCY = not FCY
-    castStatus(FCY, stor.t)
+    castStatus({FCY, stor.t, false})
+    end
 end)
 
 comms = ac.OnlineEvent({
 ac.StructItem.key("FCY"),
 fcy=ac.StructItem.boolean(),
-time=ac.StructItem.uint8()
+time=ac.StructItem.uint8(),
+req=ac.StructItem.boolean()
 }, function(sender, message)
     local timer = message.time
-    FCY = message.fcy
 
+    if FCY ~= message.fcy then
+    FCY = message.fcy
+    
     setInterval(function()
         if timer > 0 then
         if FCY then
@@ -88,6 +88,7 @@ time=ac.StructItem.uint8()
             return clearInterval
         end
     end, 1, "FCY")
+end
 
 end, ac.SharedNamespace.ServerScript)
 
