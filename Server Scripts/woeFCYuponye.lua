@@ -8,7 +8,8 @@ local stor = ac.storage{
 local autoslow = false
 local dtLaps = 3
 local adminOnly = true
-ac.debug("!version", "woeFCYuponye v1.4")
+local altLimiter = true
+ac.debug("!version", "woeFCYuponye v1.5")
 
 ac.onSessionStart(function (sessionIndex, restarted)
     FCY = false
@@ -17,9 +18,10 @@ end)
 
 ac.onOnlineWelcome(function (message, config)
     local sec = "FCY"
-    autoslow = const(config:get(sec, "AUTO_SLOW", false))
+    autoslow = const(config:get(sec, "AUTO_SLOW", true))
     adminOnly = const(config:get(sec, "ADMIN_ONLY", true))
     dtLaps = const(config:get(sec, "LAPS_TO_SERVE_DT", 3))
+    altLimiter = const(config:get(sec, "ALT_LIMITER", false))
     local adminFlags
     if adminOnly then 
         adminFlags = bit.bor(ui.OnlineExtraFlags.Tool, ui.OnlineExtraFlags.Admin)
@@ -103,19 +105,32 @@ local wasforce = false
 local wasFCY = false
 function script.update(dt)
     local stop = false
-    if autoslow then        
+
+    if autoslow then       
+
         if (car.speedKmh > 85) and force then
-            if physics.getCarInputControls().brake < 0.1 then
-                stop = true
+        if physics.getCarInputControls().brake < 0.1 then
+                if ac.getCarOptimalBrakingAmount(0) == -1 then
+                    stop = true
+                else
+                    physics.forceUserBrakesFor(0.1, math.max(ac.getCarOptimalBrakingAmount(0), 0.1))
+                    physics.forceUserThrottleFor(0.1, 0)
+                end
             end
+
         elseif car.speedKmh > 79 and force then
-            if not car.manualPitsSpeedLimiterEnabled then
-                physics.forceUserThrottleFor(dt, 0)
+            if altLimiter then
+                physics.setEngineRPM(0, car.rpm-(100 * (math.max(car.speedKmh-79, 0) )))
+            else
+                if not car.manualPitsSpeedLimiterEnabled then
+                    physics.forceUserThrottleFor(dt, 0)
+                end
             end
         end
 
 
     end
+
     if dtLaps > 0 then
         if car.speedKmh > 80.5 and force then
             physics.setCarPenalty(ac.PenaltyType.MandatoryPits, dtLaps)
