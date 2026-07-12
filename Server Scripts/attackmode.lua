@@ -9,7 +9,7 @@ ac.debug("Credit", "original script by tetematete, co-owner of OSR. \nTo race wi
 car = ac.getCar(0)
 sim = ac.getSim()
 local kersbutton = ac.ControlButton("KERS")
-kersbutton:setDisabled(true)
+kersbutton:setDisabled(false)
 ac.setKERS(false)
 
 local paint = ac.TrackPaint()
