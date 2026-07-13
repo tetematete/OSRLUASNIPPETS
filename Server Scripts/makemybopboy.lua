@@ -38,7 +38,9 @@ ui.registerOnlineExtra(ui.Icons.CarFront, "QUICKBOPTEST", nil, function()
             physics.setCarRestrictor(0, restrictor)
         end
     end
-
+    if ui.button("toggle Autopilot") then
+        physics.setCarAutopilot(not car.isAIControlled)
+    end
     ui.childWindow("Data", vec2(ui.availableSpaceX(), 500), function()
         for index, e in ipairs(data) do
             local txt = "Lap Time: " .. ac.lapTimeToString(e.t) .. " R/B: " .. e.res .. "%/"..e.bal .."kg Top Speed: " ..e.ts
@@ -48,7 +50,7 @@ ui.registerOnlineExtra(ui.Icons.CarFront, "QUICKBOPTEST", nil, function()
         end
     end)
 end, nil, ui.OnlineExtraFlags.Tool)
-physics.setCarAutopilot(true)
+
 function script.update(dt)
     if enabled then
         if car.speedKmh > topSpeed then
@@ -65,7 +67,7 @@ function reset()
 end
 
 ac.onLapCompleted(0, function(carIndex, lapTime, valid, cuts, lapCount)
-    ac.log(lapTime)
+   
     table.insert(data, {t=lapTime, c=cuts, res=car.restrictor, bal=car.ballast, ts=topSpeed})
     reset()
 end)
