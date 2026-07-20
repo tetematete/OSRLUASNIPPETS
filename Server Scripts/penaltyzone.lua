@@ -405,7 +405,9 @@ function script.update(dt)
                     clearInterval(cutChecker)
                     if not (car.speedKmh <= returnSpeed) and isCut then
                         ac.log("Warning!")
+                        if sim.raceSessionType ~= ac.SessionType.Qualify then
                         cutWarnings = cutWarnings + warn
+                        end
                         physics.setDriverName(baseName .. cutWarnings)
                     end
                     isCut = false
