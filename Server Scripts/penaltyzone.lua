@@ -408,7 +408,7 @@ function script.update(dt)
                         if sim.raceSessionType ~= ac.SessionType.Qualify then
                         cutWarnings = cutWarnings + warn
                         end
-                        physics.setDriverName(baseName .. cutWarnings)
+                        --physics.setDriverName(baseName .. cutWarnings)
                     end
                     isCut = false
                 end, bonusTime, "BonusTimer")
