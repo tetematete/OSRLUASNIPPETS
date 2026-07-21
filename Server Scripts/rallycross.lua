@@ -313,7 +313,7 @@ local jokerInd = ui.ExtraCanvas(vec2(400, 100)):setName("a"):update(drawJokerInd
 
 
 ac.onTrackPointCrossed(0, 0.995, function (carIndex, timeMs)
-        if car.lapCount+1 == ac.getSession(sim.currentSessionIndex).laps  and jokerStatus ~= 3 and sim.raceSessionType == ac.SessionType.Race then
+        if car.lapCount+1 == ac.getSession(sim.currentSessionIndex).laps  and jokerStatus ~= 2 and sim.raceSessionType == ac.SessionType.Race then
         physics.setCarPenalty(ac.PenaltyType.BlackFlag)
         ac.setMessage("JOKER LAP", "YOU HAVE BEEN DISQUALIFIED FOR NOT TAKING THE JOKER LAP", 'illegal', 10)
     end
