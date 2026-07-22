@@ -56,7 +56,7 @@ onlineWindow.make = class.emmy(onlineWindow, onlineWindow.initialize)
 --#endRegion
 
 local cubic = require('shared/math/cubic')
-ac.debug("!version", "jokerlap v0.1")
+ac.debug("!version", "jokerlap v0.2")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -90,8 +90,10 @@ local noVisuals = false
 local arrowColor = rgbm(0.4, 0.8, 1, 0)
 local active = false
 local rotation = 90
-
-
+local readyUp = false
+local ready = false
+local statusList = {}
+local doneCount = 0
 local function makePaint()
     
         paint:reset()
@@ -114,17 +116,6 @@ local function makePaint()
     end
 end
 
-local testa = ac.INIConfig.parse([[
-[ATTACKMODE]
-POINT_0=112.65518188477,0.78796672821045,-842.85900878906
-OFFSET=0
-POINT_3=170.95404052734,1.1461935043335,-854.06195068359
-POINT_2=160.42752075195,1.0953969955444,-850.65606689453
-POINT_1=139.10534667969,0.95912742614746,-846.13781738281
-HITBOX=1.3159999847412
-SIZE = 1
-DIST = 1
-]], ac.INIFormat.Extended)
 
 
 --==============================================================================
@@ -132,6 +123,10 @@ DIST = 1
 --==============================================================================
 ac.onOnlineWelcome(function(message, config)
     --config = testa
+    local sec = "RX_CONFIG"
+    readyUp = config:get(sec, "READY_UP", false)
+
+
      local sec = "RALLYCROSS"
     for index, key in config:iterateValues(sec, "POINT", true) do
         local pos = config:get(sec, key, vec3())
@@ -144,8 +139,7 @@ ac.onOnlineWelcome(function(message, config)
     age = config:get(sec, "AGE", 0.5)
     rotation = config:get(sec, "ROTATION", 90)
     arrowColor = config:get(sec, "COLOR", rgbm(0.4, 0.8, 1, 1))
-    --noVisuals = config:get("ATTACKMODE", "NO_VISUALS", 0) == 1
-    --ac.log(config:serialize())
+
     if #spl > 3 then
         makePaint()
     end
@@ -232,11 +226,10 @@ if ui.colorPicker("Arrow Color", arrowColor, ui.ColorPickerFlags.AlphaBar) then 
     if tempConfig ~= nil then 
         ui.inputText("##CONFIG", tempConfig, ui.InputTextFlags.None, ui.availableSpace())
     end
-
 end, function (okClicked)
     showDebug = false
     
-end, ui.OnlineExtraFlags.Tool)
+end, bit.bor(ui.OnlineExtraFlags.Admin, ui.OnlineExtraFlags.Tool))
 --==============================================================================
 -- 3D Update function, for showing hitbox and positioning helpers
 --==============================================================================
@@ -277,7 +270,6 @@ function script.update(dt)
             if collectedPoints < #spl and spl[collectedPoints + 1].pos:distance(car.position) < hitbox then
                 if collectedPoints == 0 and jokerStatus ~= 2 then
                     bcast({status=1})
-                    jokerStatus = 1
                 end
                 spl[collectedPoints + 1].collected = true
                 collectedPoints = collectedPoints + 1
@@ -305,12 +297,33 @@ local drawJokerInd = function(dt)
     ui.endGradientShade(vec2(-100 + progress, 50), vec2(0 + progress, 50), col2, col1)
     ui.beginGradientShade()
     ui.pushDWriteFont('Segoe UI;Weight=Semibold')
-    ui.dwriteTextAligned("JOKER", 60, ui.Alignment.Center, ui.Alignment.Center, vec2(260, 100))
+
+    local txt = "JOKER"
+    local size = 60
+    if readyUp then
+        if sim.raceSessionType == ac.SessionType.Race then
+                txt = "JOKER"
+                size = 60
+        else
+            if jokerStatus == 0 then
+                txt = "RIGHT CLICK\nTO READY"
+                size = 30
+            elseif jokerStatus == 2 then
+                if sim.isAdmin then
+                txt = "READY\nSTATUS:\n" .. doneCount .."/".. sim.connectedCars .. "                              ‎"
+                size = 20
+                else
+                txt = "READY"
+                size = 60
+                end
+            end
+        end
+    end
+
+    ui.dwriteTextAligned(txt, size, ui.Alignment.Center, ui.Alignment.Center, vec2(260, 100))
     ui.endGradientShade(vec2(-100 + progress, 50), vec2(0 + progress, 50), col1, col2)
 end
 local jokerInd = ui.ExtraCanvas(vec2(400, 100)):setName("a"):update(drawJokerInd)
-
-
 
 ac.onTrackPointCrossed(0, 0.995, function (carIndex, timeMs)
         if car.lapCount+1 == ac.getSession(sim.currentSessionIndex).laps  and jokerStatus ~= 2 and sim.raceSessionType == ac.SessionType.Race then
@@ -325,7 +338,7 @@ local jokerWindow = onlineWindow.make("a", vec2(500,500), vec2(270, 100), true, 
 function script.drawUI()
     --ac.log(jokerStatus)
     if jokerStatus == 0 then
-        progress = 0
+        progress = jsmooth(0)
         progress2 = 0
     elseif jokerStatus == 1 then
         progress = jsmooth(400 * (collectedPoints / #spl))
@@ -335,27 +348,104 @@ function script.drawUI()
         progress2 = 400
     end
 
-    if progress ~= progress2 then
+    if progress ~= progress2 or sim.isAdmin then
         jokerInd:clear():update(drawJokerInd)
     end
 
     jokerWindow:window(function ()
         ui.image(jokerInd, vec2(400, 100))
+        if readyUp then
+            if ui.itemClicked(ui.MouseButton.Right) and sim.raceSessionType == ac.SessionType.Practice then
+                if jokerStatus == 2 then
+                        bcast({status=0})
+                else
+                    bcast({status=2})
+                end
+            end
+
+            if sim.isAdmin then
+                if ui.rectHovered(vec2(75, 0), vec2(175, 60)) then
+                    ui.tooltip(function()
+                        for index, c in ac.iterateCars.serverSlots() do
+                            if c.isConnected then
+                                ui.text(c:driverName() .. ": " .. ((statusList[index] == 2) and "Ready" or "Not Ready"))
+                            end
+                        end
+                    end)
+                end
+                if jokerStatus == 2 then
+                                    ui.setCursor(vec2(75,65))
+                if ui.modernButton("Next Session", vec2(150,25),ui.ButtonFlags.None, ui.Icons.Skip) then
+                    ac.sendChatMessage("/ksns")
+                end
+                end
+            end
+        end
     end)
 
 
 end
 
 --==============================================================================
+-- Comms
+--==============================================================================
+for index, value in ac.iterateCars.serverSlots() do
+    statusList[index] = 0
+end
+
+bcast = ac.OnlineEvent({
+    ac.StructItem.key("BroadcastCarStatus"),
+    req = ac.StructItem.boolean(),
+    status = ac.StructItem.int8()
+}, function (sender, message)
+    if message.req then
+        bcast({status=jokerStatus})
+    else
+        if sender.index == 0 then
+            jokerStatus = message.status
+        end
+        statusList[sender.sessionID + 1] = message.status
+        doneCount = 0
+        for index, value in ipairs(statusList) do
+            if value == 2 and ac.getCar.serverSlot(index - 1).isConnected then
+                doneCount = doneCount + 1
+            end
+        end
+    end
+end)
+
+function castStatus(t)
+    math.randomseed(sim.currentSessionTime)
+    if not bcast(t, true) then
+        setInterval(function ()
+            if bcast(t, true) then
+                return clearInterval
+            end
+        end, math.random())
+    end
+end
+
+ac.onClientDisconnected(function (connectedCarIndex, connectedSessionID)
+    if statusList[connectedSessionID+1] == 2 then
+        doneCount = doneCount - 1
+    end
+    statusList[connectedSessionID+1] = 0
+
+end)
+
+castStatus({req=true})
+--==============================================================================
 -- Reset, Complete Lap callbacks
 --==============================================================================
 
-function reset() --reset function, 
 
+
+function reset() --reset function, 
     setTimeout(function ()
     resetCollected()
     end, 1, "reset")
 
+    bcast({status=0})
 end
 
 
@@ -372,7 +462,7 @@ end)
 function resetCollected()
     collectedPoints = 0
     if jokerStatus ~= 2 then
-        jokerStatus = 0
+            bcast({status=0})
     end
     for index, point in ipairs(spl) do
         point.collected = false
@@ -381,27 +471,9 @@ end
 
 function allCollected()   
     bcast({status=2})
-    jokerStatus = 2
     resetCollected()
-
 end
 
-bcast = ac.OnlineEvent({
-    ac.StructItem.key("BroadcastCarStatus"),
-    status = ac.StructItem.int8()
-}, function (sender, message)
-
-end)
 
 
-function castStatus(t)
-    math.randomseed(sim.currentSessionTime)
-    if not bcast(t) then
-        setInterval(function ()
-            if bcast(t) then
-                return clearInterval
-            end
-        end, math.random())
-    end
-end
 
