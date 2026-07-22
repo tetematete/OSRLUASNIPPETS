@@ -1,5 +1,5 @@
 local cubic = require('shared/math/cubic')
-ac.debug("!version", "penaltyZone v0.5")
+ac.debug("!version", "penaltyZone v0.6")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")

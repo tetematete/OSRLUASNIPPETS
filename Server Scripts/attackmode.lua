@@ -1,5 +1,5 @@
 local cubic = require('shared/math/cubic')
-ac.debug("!version", "attackmode v1.4")
+ac.debug("!version", "attackmode v1.5")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
