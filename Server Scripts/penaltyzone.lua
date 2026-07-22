@@ -106,7 +106,7 @@ ac.onOnlineWelcome(function(message, config)
     size = config:get(sec, "SIZE", 0.250)
     dist = config:get(sec, "DIST", 2)
     age = config:get(sec, "AGE", 0.5)
-    rotation = config:get(sec, "ROTATION", 90)
+    rotation = config:get(sec, "ROTATION", 90 - ac.getRealTrackHeadingAngle())
     arrowColor = config:get(sec, "COLOR", rgbm(1, 1, 1, 1))
     penaltyZoneSpeed = config:get(sec, "SPEED_LIMIT", 80)
 

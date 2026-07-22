@@ -89,7 +89,7 @@ ac.onOnlineWelcome(function(message, config)
     size = config:get("ATTACKMODE", "SIZE", 1)
     dist = config:get("ATTACKMODE", "DIST", 1)
     age = config:get("ATTACKMODE", "AGE", 0.5)
-    rotation = config:get("ATTACKMODE", "ROTATION", 90)
+    rotation = config:get("ATTACKMODE", "ROTATION", 90 - ac.getRealTrackHeadingAngle())
     arrowColor = config:get("ATTACKMODE", "COLOR", rgbm(0.4, 0.8, 1, 1))
     --noVisuals = config:get("ATTACKMODE", "NO_VISUALS", 0) == 1
     --ac.log(config:serialize())
