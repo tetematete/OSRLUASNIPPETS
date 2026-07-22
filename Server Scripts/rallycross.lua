@@ -289,7 +289,7 @@ end
 --local collectedPoints = 0
 local jokerStatus = 0
 function script.update(dt)
-    ac.debug("A", jSpl.pts)
+   --ac.debug("A", jSpl.pts)
 --ac.debug("a", car.p2pStatus)
     if active and not (#jSpl.pts == 0) then
         if jSpl.collectedPoints == #jSpl.pts then
