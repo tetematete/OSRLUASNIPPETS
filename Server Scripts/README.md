@@ -1,4 +1,4 @@
-# Server Scripts
+# Server Scripts [WIKI:](https://github.com/tetematete/OSRLUASNIPPETS/wiki)
 Server Scripts run on each client individually, and don't require any additional download. To use in your server, simply put the config into your CSP extra options box. The Scripts are made and tested mostly on [CSP](https://acstuff.club/patch/) version 3676 (0.3.0-preview140). 
 They should be fine on most earlier versions, and I will likely update for compatibility as far back as 3465. [CSP Online Script Wiki](https://github.com/ac-custom-shaders-patch/acc-extension-config/wiki/Misc-%E2%80%93-Server-extra-options#online-scripts)
 
@@ -11,6 +11,7 @@ Or here using ACSM: (Make sure "Enable Extra Custom Shaders Patch Options" is en
 
 <img width="725" alt="image" src="https://github.com/user-attachments/assets/8c85d7c8-5fdb-40a2-8d3f-6a386751bb1f" />
 
+## NOTE: MOST DOCUMENTATION WILL BE MOVED TO [WIKI](https://github.com/tetematete/OSRLUASNIPPETS/wiki) FROM HERE ON OUT.
 
 ## Betterflags
 Better flag implementation! Adds Meatball Flag, No-overtake zones, and Slow Car Ahead flag from ACC. Can display them all in parallel.
