@@ -138,7 +138,7 @@ ac.onOnlineWelcome(function(message, config)
     dist = config:get(sec, "DIST", 1)
     age = config:get(sec, "AGE", 0.5)
     rotation = config:get(sec, "ROTATION", 90)
-    arrowColor = config:get(sec, "COLOR", rgbm(0.4, 0.8, 1, 1))
+    arrowColor = config:get(sec, "COLOR", rgbm(0.4, 0.8, 1, 0))
 
     if #spl > 3 then
         makePaint()
