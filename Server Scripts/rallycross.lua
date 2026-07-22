@@ -239,7 +239,7 @@ ui.registerOnlineExtra(ui.Icons.Pitlane, "RALLYCROSS", nil, function()
 ui.nextColumn()
 --if ui.colorPicker("Arrow Color", arrowColor, ui.ColorPickerFlags.AlphaBar) then makePaint() end
 if #jSpl.pts > 0 then 
-    jSpl.pts[ui.loadStoredNumber(0, 1)].size = ui.slider("hitbox", jSpl.pts[ui.loadStoredNumber(0, 1)].size, 1, 20, '%.1f')
+    jSpl.pts[ui.loadStoredNumber(0, 1)].size = ui.slider("hitbox", jSpl.pts[ui.loadStoredNumber(0, 1)].size, 1, 30, '%.1f')
 end
 
 if ui.button("Delete Point") then
