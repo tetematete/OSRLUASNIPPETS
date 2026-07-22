@@ -314,7 +314,7 @@ ui.registerOnlineExtra(ui.Icons.Pitlane, "Penalty Zone Maker", nil, function()
 end, function (okClicked)
     showDebug = false
     
-end, ui.OnlineExtraFlags.Tool)
+end, bit.bor(ui.OnlineExtraFlags.Admin, ui.OnlineExtraFlags.Tool))
 
 --==============================================================================
 -- Script Constant update Logic

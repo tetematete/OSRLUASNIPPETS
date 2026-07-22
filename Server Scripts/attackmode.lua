@@ -183,7 +183,7 @@ if ui.colorPicker("Arrow Color", arrowColor, ui.ColorPickerFlags.AlphaBar) then 
 end, function (okClicked)
     showDebug = false
     
-end, ui.OnlineExtraFlags.Tool)
+end, bit.bor(ui.OnlineExtraFlags.Admin, ui.OnlineExtraFlags.Tool))
 --==============================================================================
 -- 3D Update function, for showing hitbox and positioning helpers
 --==============================================================================
