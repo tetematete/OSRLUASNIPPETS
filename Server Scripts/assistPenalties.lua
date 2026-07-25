@@ -1,4 +1,4 @@
-ac.debug("!version", "assistPenalties v1.2")
+ac.debug("!version", "assistPenalties v1.3")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -61,7 +61,7 @@ ac.onOnlineWelcome(function(message, config)
     end
   end
 
-  --ac.log(penaltiesTable)
+  ac.log(penaltiesTable)
   scriptReady = true
 end)
 
