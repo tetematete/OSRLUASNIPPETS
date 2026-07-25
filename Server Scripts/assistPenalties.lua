@@ -1,4 +1,4 @@
-ac.debug("!version", "assistPenalties v1.5")
+ac.debug("!version", "assistPenalties v1.6")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -60,8 +60,6 @@ ac.onOnlineWelcome(function(message, config)
     end
     end
   end
-
-  ac.log(penaltiesTable)
   scriptReady = true
 end)
 
@@ -69,19 +67,22 @@ function refreshPenalties()
   chosenTC, chosenABS = car.tractionControlMode, car.absMode
   local resValue, balValue = initialRestrictor,initialBallast
   if chosenTC ~= 0 and lockTC then
-    resValue = resValue + tonumber(carPenalties["TC_RES_BAL"][2])
-    balValue = balValue + tonumber(carPenalties["TC_RES_BAL"][1])
+    resValue = resValue + tonumber(carPenalties["TC_RES_BAL"][1])
+    balValue = balValue + tonumber(carPenalties["TC_RES_BAL"][2])
   end
   if chosenABS ~= 0 and lockABS then
-    resValue = resValue + tonumber(carPenalties["ABS_RES_BAL"][2])
-    balValue = balValue + tonumber(carPenalties["ABS_RES_BAL"][1])
+    resValue = resValue + tonumber(carPenalties["ABS_RES_BAL"][1])
+    balValue = balValue + tonumber(carPenalties["ABS_RES_BAL"][2])
   end
-    physics.setCarRestrictor(0, resValue)
-    physics.setCarBallast(0, balValue) 
+  setTimeout(function ()
+  physics.setCarRestrictor(0, resValue)
+  physics.setCarBallast(0, balValue) 
   ac.log("Penalties Refreshed. TC: " .. (lockTC and "true" or "false") .. " ".. chosenTC )
   ac.log("Penalties Refreshed. ABS: " .. (lockABS and "true" or "false") .. " ".. chosenABS  )
   ac.log("Expected Values, Ballast: " .. balValue .. " Restrictor: " .. resValue)
-  ac.log("Current Values, Ballast: " .. car.ballast .. " Restrictor: " .. car.restrictor)
+  ac.log("Current Values, Ballast: " .. car.ballast .. " Restrictor: " .. car.restrictor)  
+  end, 5)
+
 end
 
 local wasMenu = true
