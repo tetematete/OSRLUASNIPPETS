@@ -1,4 +1,4 @@
-ac.debug("!version", "assistPenalties v1.1")
+ac.debug("!version", "assistPenalties v1.2")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -71,7 +71,8 @@ function refreshPenalties()
     physics.setCarRestrictor(0, initialRestrictor + ((chosenTC ~= 0 and lockTC) and tonumber(carPenalties["TC_RES_BAL"][1]) or 0) + ((chosenABS ~= 0 and lockABS) and tonumber(carPenalties["ABS_RES_BAL"][1]) or 0))
     physics.setCarBallast(0, initialBallast + ((chosenTC ~= 0 and lockTC) and tonumber(carPenalties["TC_RES_BAL"][2]) or 0) + ((chosenABS ~= 0 and lockABS) and tonumber(carPenalties["ABS_RES_BAL"][2]) or 0)) 
   ac.log("Penalties Refreshed. TC: " .. (lockTC and "true" or "false") .. " ".. chosenTC )
-  ac.log("Penalties Refreshed. ABS: " .. (lockABS and "true" or "false") .. " ".. chosenABS )
+  ac.log("Penalties Refreshed. ABS: " .. (lockABS and "true" or "false") .. " ".. chosenABS  )
+  ac.log("Current Values, Ballast: " .. car.ballast .. " Restrictor: " .. car.restrictor)
 end
 
 local wasMenu = true
