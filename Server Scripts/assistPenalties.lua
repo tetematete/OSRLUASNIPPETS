@@ -1,4 +1,4 @@
-ac.debug("!version", "assistPenalties v1.3")
+ac.debug("!version", "assistPenalties v1.4")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
