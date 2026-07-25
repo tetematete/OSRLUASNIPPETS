@@ -67,7 +67,7 @@ end)
 
 function refreshPenalties()
   chosenTC, chosenABS = car.tractionControlMode, car.absMode
-  resValue, balValue = initialRestrictor,initialBallast
+  local resValue, balValue = initialRestrictor,initialBallast
   if chosenTC ~= 0 and lockTC then
     resValue = resValue + tonumber(carPenalties["TC_RES_BAL"][2])
     balValue = balValue + tonumber(carPenalties["TC_RES_BAL"][1])
@@ -80,6 +80,7 @@ function refreshPenalties()
     physics.setCarBallast(0, balValue) 
   ac.log("Penalties Refreshed. TC: " .. (lockTC and "true" or "false") .. " ".. chosenTC )
   ac.log("Penalties Refreshed. ABS: " .. (lockABS and "true" or "false") .. " ".. chosenABS  )
+  ac.log("Expected Values, Ballast: " .. balValue .. " Restrictor: " .. resValue)
   ac.log("Current Values, Ballast: " .. car.ballast .. " Restrictor: " .. car.restrictor)
 end
 
@@ -94,10 +95,13 @@ function script.frameBegin(dt)
     if not sim.isInMainMenu and wasMenu  then
       refreshPenalties()
     end
+
     if sim.isInMainMenu and not wasMenu then
+      ac.log("Reset Restrictor and ballast")
       physics.setCarRestrictor(0, initialRestrictor)
       physics.setCarBallast(0, initialBallast)
     end
+
     if not sim.isInMainMenu then
       if lockTC then
         ac.setTC((chosenTC>=1) and math.max(car.tractionControlMode, 1) or 0)
@@ -107,6 +111,7 @@ function script.frameBegin(dt)
       end
     end
   end
+
   wasMenu = sim.isInMainMenu
 end
 
