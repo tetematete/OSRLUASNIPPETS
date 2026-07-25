@@ -36,9 +36,9 @@ ac.onOnlineWelcome(function(message, config)
 
   local carID = ac.getCarID(0)
   if penaltiesTable[carID] == nil then carID = "other" end 
-
+  ac.log("CARID:" .. carID)
   carPenalties = penaltiesTable[carID]
-
+  ac.log("PENS: " .. carPenalties)
   if tonumber(carPenalties["ABS_RES_BAL"][1]) == 0 and tonumber(carPenalties["ABS_RES_BAL"][2]) == 0 then
     ac.log("No abs penalty set")
   else
