@@ -81,7 +81,7 @@ function refreshPenalties()
   ac.log("Penalties Refreshed. ABS: " .. (lockABS and "true" or "false") .. " ".. chosenABS  )
   ac.log("Expected Values, Ballast: " .. balValue .. " Restrictor: " .. resValue)
   ac.log("Current Values, Ballast: " .. car.ballast .. " Restrictor: " .. car.restrictor)  
-  end, 5)
+  end, 1)
 
 end
 
