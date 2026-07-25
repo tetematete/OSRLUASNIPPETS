@@ -67,9 +67,17 @@ end)
 
 function refreshPenalties()
   chosenTC, chosenABS = car.tractionControlMode, car.absMode
-
-    physics.setCarRestrictor(0, initialRestrictor + ((chosenTC ~= 0 and lockTC) and tonumber(carPenalties["TC_RES_BAL"][1]) or 0) + ((chosenABS ~= 0 and lockABS) and tonumber(carPenalties["ABS_RES_BAL"][1]) or 0))
-    physics.setCarBallast(0, initialBallast + ((chosenTC ~= 0 and lockTC) and tonumber(carPenalties["TC_RES_BAL"][2]) or 0) + ((chosenABS ~= 0 and lockABS) and tonumber(carPenalties["ABS_RES_BAL"][2]) or 0)) 
+  resValue, balValue = initialRestrictor,initialBallast
+  if chosenTC ~= 0 and lockTC then
+    resValue = resValue + tonumber(carPenalties["TC_RES_BAL"][2])
+    balValue = balValue + tonumber(carPenalties["TC_RES_BAL"][1])
+  end
+  if chosenABS ~= 0 and lockABS then
+    resValue = resValue + tonumber(carPenalties["ABS_RES_BAL"][2])
+    balValue = balValue + tonumber(carPenalties["ABS_RES_BAL"][1])
+  end
+    physics.setCarRestrictor(0, resValue)
+    physics.setCarBallast(0, balValue) 
   ac.log("Penalties Refreshed. TC: " .. (lockTC and "true" or "false") .. " ".. chosenTC )
   ac.log("Penalties Refreshed. ABS: " .. (lockABS and "true" or "false") .. " ".. chosenABS  )
   ac.log("Current Values, Ballast: " .. car.ballast .. " Restrictor: " .. car.restrictor)
