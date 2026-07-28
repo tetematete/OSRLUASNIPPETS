@@ -9,7 +9,8 @@ local flipAllowed = false
 local DRSEnabled = false
 local areWeFR = const(true)
 local drsData = {}
-ac.debug("!version", "realDRS v0.2")
+
+ac.debug("!version", "realDRS v0.3")
 for index, section in drsZones:iterate("ZONE") do
     drsData[index] = drsZones:mapSection(section, { DETECTION = 0, START = 0, END = 0, TIMEOUT = -1, ALLOWED = false })
     ac.log(drsData[index])
@@ -46,7 +47,11 @@ ac.onOnlineWelcome(function(message, config)
     if flipAllowed then
         areWeFR = not areWeFR
     end
-    physics.allowCarDRS(0, areWeFR)
+    if sim.raceSessionType == ac.SessionType.Race then
+        physics.allowCarDRS(0, areWeFR)
+    else
+        physics.allowCarDRS(0, not areWeFR)
+    end
     ac.debug("Config:",
         "ACTIVE_ON_LAP=" .. activateOnLap .. "\nGAP_AHEAD=" .. gapAhead .. "\nTRUE = " .. (areWeFR and "TRUE" or "FALSE"))
 end)
@@ -66,7 +71,11 @@ end)
 local started = false
 ac.onSessionStart(function(sessionIndex, restarted)
     ac.log("DRS: SESSION RESTARTED\nDRS DISABLED")
-    physics.allowCarDRS(0, areWeFR)
+    if sim.raceSessionType == ac.SessionType.Race then
+        physics.allowCarDRS(0, areWeFR)
+    else
+        physics.allowCarDRS(0, not areWeFR)
+    end
     started = false
     DRSEnabled = false
 end)
