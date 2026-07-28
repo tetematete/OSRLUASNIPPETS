@@ -11,7 +11,7 @@ local areWeFR = const(true)
 local drsData = {}
 ac.debug("!version", "realDRS v0.2")
 for index, section in drsZones:iterate("ZONE") do
-    drsData[index] = drsZones:mapSection(section, { DETECTION = 0, START = 0, END = 0, TIMEOUT = -1, ALLOWED = true })
+    drsData[index] = drsZones:mapSection(section, { DETECTION = 0, START = 0, END = 0, TIMEOUT = -1, ALLOWED = false })
     ac.log(drsData[index])
     ac.log("DRS: " .. section)
     ac.onTrackPointCrossed(-1, drsData[index].DETECTION, function(carIndex, timeMs)
