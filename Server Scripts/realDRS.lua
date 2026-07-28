@@ -10,7 +10,7 @@ local DRSEnabled = false
 local areWeFR = const(true)
 local drsData = {}
 
-ac.debug("!version", "realDRS v0.4")
+ac.debug("!version", "realDRS v0.5")
 for index, section in drsZones:iterate("ZONE") do
     drsData[index] = drsZones:mapSection(section, { DETECTION = 0, START = 0, END = 0, TIMEOUT = -1, ALLOWED = false })
     ac.log(drsData[index])
@@ -72,12 +72,16 @@ end)
 
 local started = false
 ac.onSessionStart(function(sessionIndex, restarted)
-    ac.log("DRS: SESSION RESTARTED\nDRS DISABLED")
-    if sim.raceSessionType == ac.SessionType.Race then
-        physics.allowCarDRS(0, areWeFR)
-    else
-        physics.allowCarDRS(0, not areWeFR)
-    end
+    setTimeout(function()
+        ac.log("DRS: SESSION RESTARTED")
+        if sim.raceSessionType == ac.SessionType.Race then
+            ac.log("DRS: RACE SESSION: DRS DISABLED")
+            physics.allowCarDRS(0, areWeFR)
+        else
+            ac.log("DRS: NOT RACE, DRS ENABLED")
+            physics.allowCarDRS(0, not areWeFR)
+        end
+    end, 1)
     started = false
     DRSEnabled = false
 end)
