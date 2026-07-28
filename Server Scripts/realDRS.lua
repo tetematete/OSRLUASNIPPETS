@@ -6,7 +6,7 @@ local crossingTimes = {}
 local activateOnLap = 1
 local gapAhead = 1
 local flipAllowed = false
-local DRSEnabled = activateOnLap == 0 and true or false
+local DRSEnabled = false
 local areWeFR = const(true)
 local drsData = {}
 ac.debug("!version", "realDRS v0.2")
@@ -46,7 +46,7 @@ ac.onOnlineWelcome(function(message, config)
     if flipAllowed then
         areWeFR = not areWeFR
     end
-
+    physics.allowCarDRS(0, areWeFR)
     ac.debug("Config:",
         "ACTIVE_ON_LAP=" .. activateOnLap .. "\nGAP_AHEAD=" .. gapAhead .. "\nTRUE = " .. (areWeFR and "TRUE" or "FALSE"))
 end)
