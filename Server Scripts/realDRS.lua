@@ -10,7 +10,7 @@ local DRSEnabled = false
 local areWeFR = const(true)
 local drsData = {}
 
-ac.debug("!version", "realDRS v0.3")
+ac.debug("!version", "realDRS v0.4")
 for index, section in drsZones:iterate("ZONE") do
     drsData[index] = drsZones:mapSection(section, { DETECTION = 0, START = 0, END = 0, TIMEOUT = -1, ALLOWED = false })
     ac.log(drsData[index])
@@ -23,12 +23,14 @@ for index, section in drsZones:iterate("ZONE") do
                 drsData[index].ALLOWED = false
             end, gapAhead)
         else
-            if drsData[index].ALLOWED and sim.leaderLapCount >= activateOnLap and sim.raceSessionType == ac.SessionType.Race then
-                physics.allowCarDRS(0, areWeFR)
-                ac.log("DRS: Gap ahead under threshold, enabling DRS.")
-            else
-                physics.allowCarDRS(0, not areWeFR)
-                ac.log("DRS: Gap ahead above threshold or not yet enabled, disabling DRS.")
+            if sim.raceSessionType == ac.SessionType.Race then
+                if drsData[index].ALLOWED and sim.leaderLapCount >= activateOnLap then
+                    physics.allowCarDRS(0, areWeFR)
+                    ac.log("DRS: Gap ahead under threshold, enabling DRS.")
+                else
+                    physics.allowCarDRS(0, not areWeFR)
+                    ac.log("DRS: Gap ahead above threshold or not yet enabled, disabling DRS.")
+                end
             end
         end
     end)
