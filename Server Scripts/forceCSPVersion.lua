@@ -20,6 +20,7 @@ ac.onOnlineWelcome(function (message, config)
                 explodePlayer = true
                 setTimeout(function ()
                     ac.log("Kicking!")
+                    ac.shutdownAssettoCorsa()
                 end, 5)
                 return clearInterval
             end
