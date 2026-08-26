@@ -2,6 +2,7 @@ local sim = ac.getSim()
 local fcyToggle = ac.ControlButton("FCYTOGGLE")
 local FCY = false
 local force = false
+ac.storageSetPath('woeFCYuponye')
 local stor = ac.storage{
     t = 5
 }
