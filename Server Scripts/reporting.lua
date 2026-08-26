@@ -1,4 +1,4 @@
-ac.debug("!version", "reporting v0.8")
+ac.debug("!version", "reporting v0.8.1")
 local sim = ac.getSim()
 local timestamp = 0
 local sessionStartTime = 0
@@ -6,6 +6,7 @@ local session = ac.getSession(sim.currentSessionIndex)
 local fadeTimer = 0
 local cooldown = 5
 local timer = 1
+ac.storageSetPath('reporting')
 local reportStore = ac.storage {
   pos = vec2(300, 300),
   hidden = false
