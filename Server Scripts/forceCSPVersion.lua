@@ -35,7 +35,7 @@ end)
 
 function checkNewMainMenu()
     GUIConfig = ac.INIConfig.cspModule(ac.CSPModuleID.GUI)
-    if GUIConfig:get('NEW_UI', 'REPLACE_MAIN_MENU', 0, 1) == 1 and newMenu then
+    if (GUIConfig:get('NEW_UI', 'REPLACE_MAIN_MENU', 0, 1) == 1) and (newMenu == 1) then
        killPlayer() 
     end
 end
