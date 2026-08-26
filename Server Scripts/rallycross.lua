@@ -96,8 +96,8 @@ end
 
     --#endRegion
 
-ac.debug("!version", "jokerlap v0.3")
-
+ac.debug("!version", "jokerlap v0.3.1")
+ac.storageSetPath('jokerlap')
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
 ac.debug("Credit", "original script by tetematete, co-owner of OSR. \nTo race with us, support us, or find more scripts like this one,\n follow the link below.")
