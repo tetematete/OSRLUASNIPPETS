@@ -1,4 +1,4 @@
-ac.debug("!version", "forceCSPVersion v1.1")
+ac.debug("!version", "forceCSPVersion v1.2")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -7,6 +7,8 @@ local sim = ac.getSim()
 local ver = {}
 local explodePlayer = false
 local versionCorrect = false
+local newMenu = 0
+local GUIConfig = ac.INIConfig.cspModule(ac.CSPModuleID.GUI)
 
 ac.onOnlineWelcome(function (message, config)
     local sec = "CSPVERSION"
@@ -19,14 +21,31 @@ ac.onOnlineWelcome(function (message, config)
             versionCorrect = true
         end
     end
-    
-
+    newMenu = config:get(sec, 'NEW_MENU_OFF', 0, 1)
+    if newMenu then
+        checkNewMainMenu()
+    end
     if versionCorrect then
         ac.log("Version Correct")
-        function script.drawUI(dt)
-        end
     else
-        setInterval(function ()
+        killPlayer()
+    end
+end)
+
+ac.onCSPConfigChanged(ac.CSPModuleID.GUI, function ()
+
+    checkNewMainMenu()
+end)
+
+function checkNewMainMenu()
+    GUIConfig = ac.INIConfig.cspModule(ac.CSPModuleID.GUI)
+    if GUIConfig:get('NEW_UI', 'REPLACE_MAIN_MENU', 0, 1) == 1 then
+       killPlayer() 
+    end
+end
+
+function killPlayer()
+            setInterval(function ()
             if not sim.isInMainMenu then
                 explodePlayer = true
                 setTimeout(function ()
@@ -36,18 +55,22 @@ ac.onOnlineWelcome(function (message, config)
                 return clearInterval
             end
         end, 0)
-    end
-end)
+end
 
 function script.drawUI(dt)
     if explodePlayer then
-    ui.drawRectFilled(0, ui.windowSize(), rgbm(1, 0, 0, 0.3))
-    ui.dwriteTextAligned(
-    "Incorrect CSP Version.\nExpected: " .. table.concat(ver, ', ') .. "\nActual: " .. ac.getPatchVersionCode(), 50,
-        ui.Alignment.Center, ui.Alignment.Center, ui.windowSize(), false, rgbm.colors.yellow)
+        ui.drawRectFilled(0, ui.windowSize(), rgbm(1, 0, 0, 0.3))
+        local text = ''
+        if versionCorrect == false then
+            text = "Incorrect CSP Version.\nExpected: " ..
+            table.concat(ver, ', ') .. "\nActual: " .. ac.getPatchVersionCode()
+        end
+        if newMenu and GUIConfig:get('NEW_UI', 'REPLACE_MAIN_MENU', 0, 1) == 1 then
+            text = text .. '\nNew Menu Detected, Please Disable to race.'
+        end
+
+        ui.dwriteTextAligned(
+            text, 50,
+            ui.Alignment.Center, ui.Alignment.Center, ui.windowSize(), false, rgbm.colors.yellow)
     end
 end
-
-
-
-
