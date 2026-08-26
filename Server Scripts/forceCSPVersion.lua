@@ -22,24 +22,20 @@ ac.onOnlineWelcome(function (message, config)
         end
     end
     newMenu = config:get(sec, 'NEW_MENU_OFF', 0, 1)
-    if newMenu then
         checkNewMainMenu()
-    end
     if versionCorrect then
         ac.log("Version Correct")
     else
         killPlayer()
     end
 end)
-
-ac.onCSPConfigChanged(ac.CSPModuleID.GUI, function ()
-
-    checkNewMainMenu()
+ac.onCSPConfigChanged(ac.CSPModuleID.GUI, function()
+        checkNewMainMenu()
 end)
 
 function checkNewMainMenu()
     GUIConfig = ac.INIConfig.cspModule(ac.CSPModuleID.GUI)
-    if GUIConfig:get('NEW_UI', 'REPLACE_MAIN_MENU', 0, 1) == 1 then
+    if GUIConfig:get('NEW_UI', 'REPLACE_MAIN_MENU', 0, 1) == 1 and newMenu then
        killPlayer() 
     end
 end
