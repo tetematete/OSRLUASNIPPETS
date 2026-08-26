@@ -1,6 +1,6 @@
 local SIM = ac.getSim()
 local CAR = ac.getCar(SIM.focusedCar)
-
+ac.storageSetPath('betterflags')
 local betterFlagSettings = ac.storage({
     flagWindowX=0,
     flagWindowY=0,
@@ -25,7 +25,7 @@ local selfCar = ac.getCar(0)
 
 local flagDragging = false
 local flagStartPos = betterFlagSettings.flagWindowPos
-ac.storageSetPath('betterflags')
+
 
 local tempSettings = betterFlagSettings
 
