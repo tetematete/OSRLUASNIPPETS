@@ -25,7 +25,7 @@ local selfCar = ac.getCar(0)
 
 local flagDragging = false
 local flagStartPos = betterFlagSettings.flagWindowPos
-
+ac.storageSetPath('betterflags')
 
 local tempSettings = betterFlagSettings
 
@@ -56,7 +56,7 @@ ac.onOnlineWelcome(function(message, config) --Reads the script config from the 
     enabled = true
 end)
 
-ac.debug("!version", "betterflags v0.8")
+ac.debug("!version", "betterflags v0.8.1")
 
 if sim.isTripleMode then 
         tripleOffset = -(ac.getSim().windowWidth*ac.getTripleConfiguration().screens[1].xWidth)
