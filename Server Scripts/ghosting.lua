@@ -97,7 +97,7 @@ evil = ac.OnlineEvent({
       if ac.getCar.serverSlot(message.car).index == 0 then
         amIGhosted = message.ghost
       else
-        ac.highlightCar(ac.getCar.serverSlot(message.car).index, message.ghost and rgb(1,0,0) or nil )
+        ac.highlightCar(ac.getCar.serverSlot(message.car).index, message.ghost and rgb(10,0,0) or nil )
       end
     end
 end, ac.SharedNamespace.ServerScript)
