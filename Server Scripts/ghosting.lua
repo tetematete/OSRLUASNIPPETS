@@ -4,8 +4,9 @@ local function log(s)
 end
 
 local amIGhosted = false
+local markedForGhost = false
 local car = ac.getCar(0)
-
+local lapsGhost = 0
 for index, c in ac.iterateCars() do
   physics.disableCarCollisions(index, false, true)
   physics.disableCarCollisions(index, false, false)
@@ -14,13 +15,15 @@ ac.onOnlineWelcome(function (message, config)
     for index, key in config:iterateValues('GHOSTING', 'GUID') do
       log('Ghosted GUID: '..config:get('GHOSTING', key, ac.INIConfig.OptionalString, 1))
       if ac.getUserSteamID() == config:get('GHOSTING', key, ac.INIConfig.OptionalString, 1) then
+        markedForGhost = true
         amIGhosted = true
         log('Match! Putting Self on ghost list')
         
       end
       
     end
-    cast(evil, {car=car.sessionID, ghost=amIGhosted, admin=false, req = false})
+    lapsGhost = config:get('GHOSTING', 'LAPS', 0 ,1)
+    cast(evil, {car=car.sessionID, ghost=markedForGhost, admin=false, req = false})
 end)
 
 ui.registerOnlineExtra(ui.Icons.Crosshair, 'Ghosting Panel', nil, function ()
@@ -40,6 +43,27 @@ ui.registerOnlineExtra(ui.Icons.Crosshair, 'Ghosting Panel', nil, function ()
   end
 end, nil, bit.bor(ui.OnlineExtraFlags.Admin, ui.OnlineExtraFlags.Tool), ui.WindowFlags.None)
 
+local started = false
+ac.onSessionStart(function (sessionIndex, restarted)
+  started = false
+  setTimeout(function ()
+    if sim.raceSessionType == ac.SessionType.Race and lapsGhost > 0 then
+      cast(evil, {car=car.sessionID, ghost=true, admin=false, req = false})
+    end
+  end, 5)
+end)
+
+ac.onLapCompleted(0, function(carIndex, lapTime, valid, cuts, lapCount)
+  if not started then
+    setTimeout(function()
+      if sim.leaderLapCount >= lapsGhost then
+        started = true
+        cast(evil, {car=car.sessionID, ghost=markedForGhost, admin=false, req = false})
+      end
+    end, 1)
+  end
+end)
+
 ---@param t table @The table that you would normally pass to the function returned by ac.onlineEvent
 function cast(f, t)
     math.randomseed(sim.currentSessionTime)
@@ -51,6 +75,8 @@ function cast(f, t)
         end, math.random())
     end
 end
+
+
 
 evil = ac.OnlineEvent({
     ac.StructItem.key('Ghosting'),
