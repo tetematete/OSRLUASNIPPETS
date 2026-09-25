@@ -6,11 +6,15 @@ local crossingTimes = {}
 local activateOnLap = 1
 local gapAhead = 1
 local flipAllowed = false
+local maxActivations = 1
+local usages = 0
+local usagesPerLap = 3
 local DRSEnabled = false
 local areWeFR = const(true)
 local drsData = {}
 
-ac.debug("!version", "realDRS v0.5")
+local usedThisLap = false
+ac.debug("!version", "realDRS v0.6")
 for index, section in drsZones:iterate("ZONE") do
     drsData[index] = drsZones:mapSection(section, { DETECTION = 0, START = 0, END = 0, TIMEOUT = -1, ALLOWED = false })
     ac.log(drsData[index])
@@ -24,7 +28,7 @@ for index, section in drsZones:iterate("ZONE") do
             end, gapAhead)
         else
             if sim.raceSessionType == ac.SessionType.Race then
-                if drsData[index].ALLOWED and sim.leaderLapCount >= activateOnLap then
+                if drsData[index].ALLOWED and sim.leaderLapCount >= activateOnLap and (usages < maxActivations) then
                     physics.allowCarDRS(0, areWeFR)
                     ac.log("DRS: Gap ahead under threshold, enabling DRS.")
                 else
@@ -34,6 +38,10 @@ for index, section in drsZones:iterate("ZONE") do
             end
         end
     end)
+    if car.drsActive and not usedThisLap then
+      usedThisLap = true
+      usages = usages + usagesPerLap
+    end
 end
 --physics.setCarAutopilot(true)
 
@@ -46,6 +54,7 @@ ac.onOnlineWelcome(function(message, config)
     activateOnLap = config:get(sec, "ACTIVE_ON_LAP", 1)
     gapAhead = config:get(sec, "GAP_AHEAD", 1)
     flipAllowed = config:get(sec, "FLIP_ALLOWED", true)
+    maxActivations, usagesPerLap = config:get(sec, "USAGES", 1, 1),config:get(sec, "USAGES", 0, 1)
     if flipAllowed then
         areWeFR = not areWeFR
     end
@@ -60,6 +69,7 @@ end)
 
 
 ac.onLapCompleted(-1, function(carIndex, lapTime, valid, cuts, lapCount)
+  usedThisLap = false
     setTimeout(function()
         if sim.leaderLapCount >= activateOnLap and sim.raceSessionType == ac.SessionType.Race then
             if not DRSEnabled then
@@ -74,6 +84,8 @@ local started = false
 ac.onSessionStart(function(sessionIndex, restarted)
     setTimeout(function()
         ac.log("DRS: SESSION RESTARTED")
+        usages = 0
+        usedThisLap = false
         if sim.raceSessionType == ac.SessionType.Race then
             ac.log("DRS: RACE SESSION: DRS DISABLED")
             physics.allowCarDRS(0, areWeFR)
