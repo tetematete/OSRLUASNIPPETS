@@ -54,7 +54,7 @@ ac.onOnlineWelcome(function(message, config)
     activateOnLap = config:get(sec, "ACTIVE_ON_LAP", 1)
     gapAhead = config:get(sec, "GAP_AHEAD", 1)
     flipAllowed = config:get(sec, "FLIP_ALLOWED", true)
-    maxActivations, usagesPerLap = config:get(sec, "USAGES", 1, 1),config:get(sec, "USAGES", 0, 1)
+    maxActivations, usagesPerLap = config:get(sec, "USAGES", 1, 1),config:get(sec, "USAGES", 0, 2)
     if flipAllowed then
         areWeFR = not areWeFR
     end
