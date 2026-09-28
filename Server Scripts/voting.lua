@@ -136,7 +136,7 @@ end, function ()
         if ui.button('Copy Link') then
             ac.setClipboardText(link)
         end         
-
+ui.popFont()
 end
     ui.separator()
     if ui.iconButton(ui.Icons.Exit) then
