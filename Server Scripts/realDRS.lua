@@ -38,10 +38,7 @@ for index, section in drsZones:iterate("ZONE") do
             end
         end
     end)
-    if car.drsActive and not usedThisLap then
-      usedThisLap = true
-      usages = usages + usagesPerLap
-    end
+
 end
 --physics.setCarAutopilot(true)
 
@@ -98,14 +95,11 @@ ac.onSessionStart(function(sessionIndex, restarted)
     DRSEnabled = false
 end)
 
-
-
---[=[function script.update(dt)
-    ac.debug("drsData", drsData)
-    ac.debug("d", car.drsAvailable)
-    --[[if not started then
-        if sim.isSessionStarted then
-            started = true
-        end
-    end]]
-end]=]
+function script.update(dt)
+    --ac.debug("drsData", drsData)
+    --ac.debug("d", car.drsAvailable)
+if car.drsActive and not usedThisLap then
+      usedThisLap = true
+      usages = usages + usagesPerLap
+end
+end
