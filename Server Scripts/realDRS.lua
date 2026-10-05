@@ -163,7 +163,7 @@ function script.update(dt)
     ac.debug("zone_%d" % index, value.ALLOWED)
   end]]
 
-  if car.drsActive and not wasDRS then
+  if (car.drsActive and not wasDRS) and sim.isSessionStarted then
     if not usedThisLap then
       usedThisLap = true
       usages = usages + usagesPerLap
