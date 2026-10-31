@@ -66,7 +66,6 @@ local maxActivations = 1
 local usages = 0
 local usagesPerLap = 0
 local DRSEnabled = false
-local TRUE   = const(false)
 local drsData = {}
 
 local usedThisLap = false
@@ -77,7 +76,7 @@ for index, section in drsZones:iterate("ZONE") do
     ac.log("DRS: " .. section)
     ac.onTrackPointCrossed(-1, drsData[index].DETECTION, function(carIndex, timeMs)
       --ac.log(carIndex, index)
-        if carIndex ~= 0 then
+        if carIndex ~= 0 and not ac.getCar(carIndex).isInPitlane then
             drsData[index].ALLOWED = true
             clearTimeout(drsData[index].TIMEOUT)
             drsData[index].TIMEOUT = setTimeout(function()
@@ -86,10 +85,10 @@ for index, section in drsZones:iterate("ZONE") do
         else
             if sim.raceSessionType == ac.SessionType.Race then
                 if drsData[index].ALLOWED and sim.leaderLapCount >= activateOnLap and (usages < maxActivations) then
-                    physics.allowCarDRS(0, TRUE)
+                    physics.allowCarDRS(0, false)
                     ac.log("DRS: Gap ahead under threshold, enabling DRS.")
                 else
-                    physics.allowCarDRS(0, not TRUE)
+                    physics.allowCarDRS(0, true)
                     ac.log("DRS: Gap ahead above threshold or not yet enabled, disabling DRS.")
                 end
             end
@@ -104,19 +103,29 @@ if drsData == {} then
 end
 
 ac.onOnlineWelcome(function(message, config)
+  if not sim.isOnlineRace then
+    config = ac.INIConfig.parse([[
+  [REALDRS]
+  ACTIVE_ON_LAP=0
+  GAP_AHEAD= 5
+  USAGES = 2, 2
+  ]], ac.INIFormat.Extended)
+  end
+
+
     local sec = "REALDRS"
     activateOnLap = config:get(sec, "ACTIVE_ON_LAP", 1)
     gapAhead = config:get(sec, "GAP_AHEAD", 1)
     maxActivations, usagesPerLap = config:get(sec, "USAGES", 1, 1),config:get(sec, "USAGES", 0, 2)
 
-    ac.debug("Config:",
-        "ACTIVE_ON_LAP=" .. activateOnLap .. "\nGAP_AHEAD=" .. gapAhead)
+    ac.debug("config:", config:serialize())
 end)
 
 
 ac.onLapCompleted(-1, function(carIndex, lapTime, valid, cuts, lapCount)
   if carIndex == 0 then
   usedThisLap = false
+  usages = usages + usagesPerLap
   end
   if not DRSEnabled then
     setTimeout(function()
@@ -142,10 +151,10 @@ function checkStart()
         usedThisLap = false
         if sim.raceSessionType == ac.SessionType.Race and activateOnLap > 0 then
             ac.log("DRS: RACE SESSION: DRS DISABLED")
-            physics.allowCarDRS(0, not TRUE)
+            physics.allowCarDRS(0, true)
         else
             ac.log("DRS: NOT RACE, DRS ENABLED")
-            physics.allowCarDRS(0, TRUE)
+            physics.allowCarDRS(0, false)
         end
     end, 1)
     started = false
@@ -153,20 +162,22 @@ function checkStart()
 
 end
 
+
+
 local wasDRS = false
 function script.update(dt)
-  --ac.debug("drsData", drsData)
-  --ac.debug("d", car.drsAvailable)
-  --[[ac.debug("usages", usages)
+  if not sim.isOnlineRace then
+  ac.debug("drsData", drsData)
+  ac.debug("d", car.drsAvailable)
+  ac.debug("usages", usages)
   ac.debug("max", maxActivations)
   for index, value in ipairs(drsData) do
     ac.debug("zone_%d" % index, value.ALLOWED)
-  end]]
-
+  end
+end
   if (car.drsActive and not wasDRS) and sim.isSessionStarted then
     if not usedThisLap then
       usedThisLap = true
-      usages = usages + usagesPerLap
     end
   end
   wasDRS = car.drsActive
