@@ -8,7 +8,7 @@ ac.debug("!version", "tyreblankies v1.1")
 for i, c in ac.iterateCars() do
     ac.log(c:id())
 end
-local debugMode = true
+local debugMode = false
 
 --c.onOnlineWelcome(function(message, config) --Reads the script config from the extra options config--
     --temps = {config:get("BLANKIES", "TEMP_DEGC", 70, 1), config:get("BLANKIES", "TEMP_DEGC", ac.INIConfig.OptionalNumber(), 2)}
