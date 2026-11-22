@@ -1,4 +1,4 @@
-ac.debug("!version", "pitIndicator v0.7")
+ac.debug("!version", "pitIndicator v0.8")
 
 --If you intend to modify this script, leave these in.
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -193,13 +193,19 @@ local width, height = 7, 2
 local color = rgbm(10, 0, 0, 1)
 local active = false
 local quadPoints = { vec3(), vec3(), vec3(), vec3() }
+local shaderParams = {}
+local shader = [[
+  float4 main(PS_IN pin)
+  {
+    return pin.ApplyFog(float4(r, g, b, (1-pin.Tex.y)*mult));
+  }
+]]
 ac.onOnlineWelcome(function(message, config)
   --[=[config = ac.INIConfig.parse([[
   [PITINDICATOR]
-  COLOR=1,0,0,1
-  SIZE=7,2
+  COLOR=10,10,0,1
+  SIZE=9,1
   ]], ac.INIFormat.Extended)]=]
-
   color = config:get('PITINDICATOR', 'COLOR', rgbm(10, 0, 0, 1))
   width, height = config:get('PITINDICATOR', 'SIZE', 7, 1), config:get('PITINDICATOR', 'SIZE', 2, 2)
 
@@ -217,6 +223,17 @@ ac.onOnlineWelcome(function(message, config)
   quadPoints[3]:add(-cross * width / 2):add(vec3(0, 1, 0) * height)
   quadPoints[4]:add(cross * width / 2):add(vec3(0, 1, 0) * height)
 
+  shaderParams = {
+      directValuesExchange=false,
+      p1 = quadPoints[1],
+      p2 = quadPoints[2],
+      p3 = quadPoints[3],
+      p4 = quadPoints[4],
+      textures = {},
+      values = { r = color.r, g = color.g, b = color.b, mult = color.mult },
+      shader = shader
+    }
+
   active = true
 end)
 
@@ -224,25 +241,14 @@ end)
 
 -- ================== DRAWING THA QUAD ==================
 --#region
+
+
 function script.draw3D()
   if active then
     render.setBlendMode(render.BlendMode.BlendAccurate)
     render.setCullMode(render.CullMode.Back)
     render.setDepthMode(render.DepthMode.ReadOnlyLessEqual)
-    render.shaderedQuad({
-      p1 = quadPoints[1],
-      p2 = quadPoints[2],
-      p3 = quadPoints[3],
-      p4 = quadPoints[4],
-      textures = {},
-      values = { r = color.r, g = color.g, b = color.b, mult = color.mult },
-      shader = [[
-  float4 main(PS_IN pin)
-  {
-    return pin.ApplyFog(float4(r, g, b, (1-pin.Tex.y)*mult));
-  }
-]]
-    })
+    render.shaderedQuad(shaderParams)
   end
 end
 
