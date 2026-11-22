@@ -1,4 +1,4 @@
-ac.debug("!version", "pitIndicator v0.5")
+ac.debug("!version", "pitIndicator v0.6")
 
 --If you intend to modify this script, leave these in. 
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -169,24 +169,20 @@ local pts = {}
         --ac.log(pts[i].pit)
     end
 
-local prevPtPitlane = false
+local prevPtPitlane = pts[1].pit
 local pitStart = {}
 local pitEnd = {}
 table.sort(pts, function (a, b)
-    return a.index > b.index
+    return a.index < b.index
 end)
 
 for i, pt in ipairs(pts) do
-    if pt.pit and not prevPtPitlane then
-        pitStart.pos = pts[i+1].ray.pos
-        pitStart.look = pts[i+1].pos-pts[i].pos
-        pitStart.deg = ac.getCompassAngle(pitStart.look)+ac.getRealTrackHeadingAngle()+90
+    if (pt.pit and not prevPtPitlane) and pitStart.pos == nil then       
+        pitStart.pos = pts[i-1].ray.pos
+        pitStart.look = pts[i-1].pos-pts[i].pos
     end
-    --[[if not pt.pit and prevPtPitlane then
-        pitEnd.pos = pts[i-1].pos
-        pitEnd.look = pts[i-1].pos-pt.pos
-        pitEnd.deg = ac.getCompassAngle(pitEnd.look)
-    end]]
+    prevPtPitlane = pt.pit
+
 end
 --#endregion
 
