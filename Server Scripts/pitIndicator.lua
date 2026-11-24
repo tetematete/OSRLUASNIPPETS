@@ -1,4 +1,4 @@
-ac.debug("!version", "pitIndicator v0.8")
+ac.debug("!version", "pitIndicator v0.9")
 
 --If you intend to modify this script, leave these in.
 ac.debug("URL", "https://github.com/tetematete/OSRLUASNIPPETS/tree/main")
@@ -172,17 +172,22 @@ for i, pt in ipairs(test.points) do
 end
 
 local prevPtPitlane = pts[1].pit
-local pitStart = {}
-local pitEnd = {}
+local p = {}
+p.pitStart = {}
+p.pitEnd = {}
 table.sort(pts, function(a, b)
   return a.index < b.index
 end)
 
 for i, pt in ipairs(pts) do
-  if (pt.pit and not prevPtPitlane) and pitStart.pos == nil then
-    pitStart.pos = pts[i - 1].ray.pos
-    pitStart.look = pts[i - 1].pos - pts[i].pos
-  end
+    if (pt.pit and not prevPtPitlane) and p.pitStart.pos == nil then       
+        p.pitStart.pos = pts[i-1].ray.pos
+        p.pitStart.look = pts[i-1].pos-pts[i].pos
+    end
+      if (not pt.pit and prevPtPitlane) and p.pitEnd.pos == nil then       
+        p.pitEnd.pos = pts[i].ray.pos
+        p.pitEnd.look = pts[i].pos-pts[i-1].pos
+    end
   prevPtPitlane = pt.pit
 end
 --#endregion
@@ -190,8 +195,10 @@ end
 -- ================== MATH TO PLACE QUAD ====================
 --#region
 local width, height = 7, 2
+local exit = false
 local color = rgbm(10, 0, 0, 1)
 local active = false
+
 local quadPoints = { vec3(), vec3(), vec3(), vec3() }
 local shaderParams = {}
 local shader = [[
@@ -208,33 +215,39 @@ ac.onOnlineWelcome(function(message, config)
   ]], ac.INIFormat.Extended)]=]
   color = config:get('PITINDICATOR', 'COLOR', rgbm(10, 0, 0, 1))
   width, height = config:get('PITINDICATOR', 'SIZE', 7, 1), config:get('PITINDICATOR', 'SIZE', 2, 2)
+  exit = config:get('PITINDICATOR', 'EXIT', false, 1)
 
 
-  for index, value in ipairs(quadPoints) do
-    quadPoints[index] = pitStart.pos:clone()
-  end
-  local cross = vec3()
-  pitStart.look:cross(vec3(0, 1, 0), cross)
-  cross:normalize()
 
 
-  quadPoints[1]:add(cross * width / 2)
-  quadPoints[2]:add(-cross * width / 2)
-  quadPoints[3]:add(-cross * width / 2):add(vec3(0, 1, 0) * height)
-  quadPoints[4]:add(cross * width / 2):add(vec3(0, 1, 0) * height)
+for key, pit in pairs(p) do
+pit.quadPoints =  {vec3(),vec3(),vec3(),vec3()}
+pit.cross = vec3()
+pit.shaderParams = {}
+  for index, value in ipairs(pit.quadPoints) do
+  pit.quadPoints[index] = pit.pos:clone()
+end
 
-  shaderParams = {
-      directValuesExchange=false,
-      p1 = quadPoints[1],
-      p2 = quadPoints[2],
-      p3 = quadPoints[3],
-      p4 = quadPoints[4],
-      textures = {},
-      values = { r = color.r, g = color.g, b = color.b, mult = color.mult },
-      shader = shader
-    }
+pit.look:cross(vec3(0,1,0), pit.cross)
+pit.cross:normalize()
 
-  active = true
+
+pit.quadPoints[1]:add(pit.cross*width/2)
+pit.quadPoints[2]:add(-pit.cross*width/2)
+pit.quadPoints[3]:add(-pit.cross*width/2):add(vec3(0,1,0)*height)
+pit.quadPoints[4]:add(pit.cross*width/2):add(vec3(0,1,0)*height)
+
+pit.shaderParams = {p1 = pit.quadPoints[1], p2 = pit.quadPoints[2], p3=pit.quadPoints[3], p4 = pit.quadPoints[4], textures = {}, values = { r = color.r, g = color.g, b = color.b, mult = color.mult }, shader = [[
+  float4 main(PS_IN pin) 
+  {
+    return pin.ApplyFog(float4(r, g, b, (1-pin.Tex.y)*mult));
+  }
+]]}
+
+end
+
+
+active = true
 end)
 
 --#endregion
@@ -248,7 +261,10 @@ function script.draw3D()
     render.setBlendMode(render.BlendMode.BlendAccurate)
     render.setCullMode(render.CullMode.Back)
     render.setDepthMode(render.DepthMode.ReadOnlyLessEqual)
-    render.shaderedQuad(shaderParams)
+  render.shaderedQuad(p.pitStart.shaderParams)
+  if exit then
+  render.shaderedQuad(p.pitEnd.shaderParams)
+  end
   end
 end
 
